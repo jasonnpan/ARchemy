@@ -35,8 +35,10 @@ export class Snap3DInteractable extends BaseScriptComponent {
     this.colliderObj.getTransform().setLocalScale(this.sizeVec);
     this.img.getTransform().setLocalScale(this.sizeVec);
     
-    // Set up collision detection
-    this.setupCollisionDetection();
+    // Set up collision detection with a small delay to prevent immediate collisions during creation
+    setTimeout(() => {
+      this.setupCollisionDetection();
+    }, 100); // 100ms delay
   }
 
   private setupCollisionDetection() {
@@ -53,8 +55,13 @@ export class Snap3DInteractable extends BaseScriptComponent {
         const otherSnap3D = otherObject.getComponent(Snap3DInteractable.getTypeName());
         if (otherSnap3D) {
           print(`COLLISION! ${this.promptDisplay.text} hit ${otherSnap3D.promptDisplay.text}`);
+          // Delete both objects on collision
+          this.deleteOnCollision();
+          otherSnap3D.deleteOnCollision();
         } else {
           print(`Collision with non-Snap3D object: ${otherObject.name}`);
+          // Still delete this object when colliding with non-Snap3D objects
+          this.deleteOnCollision();
         }
       });
       this.hasSetupCollision = true;
@@ -72,8 +79,13 @@ export class Snap3DInteractable extends BaseScriptComponent {
               const otherSnap3D = otherObject.getComponent(Snap3DInteractable.getTypeName());
               if (otherSnap3D) {
                 print(`COLLISION! ${this.promptDisplay.text} hit ${otherSnap3D.promptDisplay.text}`);
+                // Delete both objects on collision
+                this.deleteOnCollision();
+                otherSnap3D.deleteOnCollision();
               } else {
                 print(`Collision with non-Snap3D object: ${otherObject.name}`);
+                // Still delete this object when colliding with non-Snap3D objects
+                this.deleteOnCollision();
               }
             }
           }
@@ -106,7 +118,9 @@ export class Snap3DInteractable extends BaseScriptComponent {
       
       // Ensure collision detection is active after model is loaded
       if (!this.hasSetupCollision) {
-        this.setupCollisionDetection();
+        setTimeout(() => {
+          this.setupCollisionDetection();
+        }, 100); // Small delay to ensure model is fully loaded
       }
     } else {
       this.tempModel = model.tryInstantiate(this.modelParent, this.mat);
@@ -127,5 +141,29 @@ export class Snap3DInteractable extends BaseScriptComponent {
     setTimeout(() => {
       this.destroy();
     }, 5000); // Hide error after 5 seconds
+  }
+
+  /**
+   * Deletes the object when it collides with another object
+   */
+  private deleteOnCollision() {
+    print(`Deleting object due to collision: ${this.promptDisplay.text}`);
+    
+    // Clean up models
+    if (this.tempModel) {
+      this.tempModel.destroy();
+      this.tempModel = null;
+    }
+    if (this.finalModel) {
+      this.finalModel.destroy();
+      this.finalModel = null;
+    }
+    
+    // Disable UI elements
+    this.img.enabled = false;
+    this.spinner.enabled = false;
+    
+    // Destroy the entire scene object
+    this.sceneObject.destroy();
   }
 }

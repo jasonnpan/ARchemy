@@ -32,12 +32,12 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
             const wcfmp = WorldCameraFinderProvider_1.default.getInstance();
             const centerPosition = wcfmp.getForwardPosition(100);
             // Create positions side by side (left and right of center)
-            const spacing = 10; // Distance between objects
+            const spacing = 30; // Distance between objects (increased to prevent collision)
             const leftPosition = centerPosition.add(new vec3(-spacing, 0, 0));
             const rightPosition = centerPosition.add(new vec3(spacing, 0, 0));
             // Generate objects at specific positions
-            await this.snap3DFactory.createInteractable3DObject("a dog", leftPosition);
-            await this.snap3DFactory.createInteractable3DObject("a peanut", rightPosition);
+            await this.snap3DFactory.createInteractable3DObject("flame", leftPosition);
+            await this.snap3DFactory.createInteractable3DObject("chicken", rightPosition);
         }
         catch (error) {
             print("Error generating objects: " + error);
