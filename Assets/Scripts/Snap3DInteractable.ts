@@ -263,8 +263,13 @@ export class Snap3DInteractable extends BaseScriptComponent {
     this.img.enabled = false;
     this.spinner.enabled = false;
     
-    // Destroy the entire scene object
-    this.sceneObject.destroy();
+    // Disable the collider object to prevent further interactions
+    this.colliderObj.enabled = false;
+    
+    // Small delay to let physics system clean up before destroying
+    setTimeout(() => {
+      this.sceneObject.destroy();
+    }, 50); // 50ms delay
   }
 
   /**

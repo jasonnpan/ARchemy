@@ -232,8 +232,12 @@ let Snap3DInteractable = Snap3DInteractable_1 = class Snap3DInteractable extends
         // Disable UI elements
         this.img.enabled = false;
         this.spinner.enabled = false;
-        // Destroy the entire scene object
-        this.sceneObject.destroy();
+        // Disable the collider object to prevent further interactions
+        this.colliderObj.enabled = false;
+        // Small delay to let physics system clean up before destroying
+        (0, FunctionTimingUtils_1.setTimeout)(() => {
+            this.sceneObject.destroy();
+        }, 50); // 50ms delay
     }
     /**
      * Public method to manually trigger collision deletion (for testing)
