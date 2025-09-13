@@ -54,6 +54,13 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
     });
   }
 
+  onUpdate() {
+    // Sync the max3DObjects setting with the factory
+    if (this.snap3DFactory && this.max3DObjects !== this.snap3DFactory.getObjectCount()) {
+      this.snap3DFactory.setMaxObjects(this.max3DObjects);
+    }
+  }
+
   private setupElementButtons() {
     print("🎯 Setting up element buttons...");
     if (this.elementButtonPrefab) {
@@ -321,8 +328,9 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
 
     // Generate the element
     this.snap3DFactory.createInteractable3DObject(element)
-      .then((status) => {
-        print(`✅ ${element} element created successfully: ${status}`);
+      .then((result) => {
+        print(`✅ ${element} element created successfully: ${result.status}`);
+        print(`📝 Object tracked by factory: ${result.sceneObject.name}`);
       })
       .catch((error) => {
         print(`❌ Failed to create ${element} element: ${error}`);
@@ -405,6 +413,38 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
     this.generatedButtons = [];
     this.elementList = [];
     print("✅ Cleared all element buttons");
+  }
+
+  // 3D Object Management Methods
+  public setMax3DObjects(max: number) {
+    if (this.snap3DFactory) {
+      this.snap3DFactory.setMaxObjects(max);
+      this.max3DObjects = max;
+    } else {
+      print("❌ Snap3DInteractableFactory not assigned!");
+    }
+  }
+
+  public clearAll3DObjects() {
+    if (this.snap3DFactory) {
+      this.snap3DFactory.clearAllObjects();
+    } else {
+      print("❌ Snap3DInteractableFactory not assigned!");
+    }
+  }
+
+  public get3DObjectCount(): number {
+    if (this.snap3DFactory) {
+      return this.snap3DFactory.getObjectCount();
+    }
+    return 0;
+  }
+
+  public get3DObjects(): SceneObject[] {
+    if (this.snap3DFactory) {
+      return this.snap3DFactory.getObjects();
+    }
+    return [];
   }
 
   private async generateObjects() {

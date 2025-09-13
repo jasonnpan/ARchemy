@@ -24,6 +24,8 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
 
   private avaliableToRequest: boolean = true;
   private wcfmp = WorldCameraFinderProvider.getInstance();
+  private generatedObjects: SceneObject[] = [];
+  private maxObjects: number = 2;
 
   onAwake() {
     this.createEvent("TapEvent").bind(() => {
@@ -37,17 +39,25 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
   createInteractable3DObject(
     input: string,
     overridePosition?: vec3
-  ): Promise<string> {
+  ): Promise<{ status: string; sceneObject: SceneObject }> {
     return new Promise((resolve, reject) => {
       if (!this.avaliableToRequest) {
         print("Already processing a request. Please wait.");
         return;
       }
       this.avaliableToRequest = false;
+      
+      // Check if we need to remove the oldest object before creating a new one
+      this.manageObjectLimit();
+      
       let outputObj = this.snap3DInteractablePrefab.instantiate(
         this.sceneObject
       );
       outputObj.name = "Snap3DInteractable - " + input;
+      
+      // Add the object to tracking immediately when created
+      this.generatedObjects.push(outputObj);
+      print(`📝 Added object to tracking: ${outputObj.name} (Total: ${this.generatedObjects.length})`);
       let snap3DInteractable = outputObj.getComponent(
         Snap3DInteractable.getTypeName()
       );
@@ -76,7 +86,10 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
               if (!this.refineMesh) {
                 snap3DInteractable.setModel(assetOrError.gltfAsset, true);
                 this.avaliableToRequest = true;
-                resolve("Successfully created mesh with prompt: " + input);
+                resolve({
+                  status: "Successfully created mesh with prompt: " + input,
+                  sceneObject: outputObj
+                });
               } else {
                 snap3DInteractable.setModel(assetOrError.gltfAsset, false);
               }
@@ -84,12 +97,23 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
               assetOrError = assetOrError as Snap3DTypes.GltfAssetData;
               snap3DInteractable.setModel(assetOrError.gltfAsset, true);
               this.avaliableToRequest = true;
-              resolve("Successfully created mesh with prompt: " + input);
+              resolve({
+                status: "Successfully created mesh with prompt: " + input,
+                sceneObject: outputObj
+              });
             } else if (value === "failed") {
               assetOrError = assetOrError as Snap3DTypes.ErrorData;
               print("Error: " + assetOrError.errorMsg);
               //snap3DInteractable.onFailure(assetOrError.errorMsg);
               this.avaliableToRequest = true;
+              
+              // Remove the failed object from tracking
+              const index = this.generatedObjects.indexOf(outputObj);
+              if (index > -1) {
+                this.generatedObjects.splice(index, 1);
+                print(`🗑️ Removed failed object from tracking: ${outputObj.name}`);
+              }
+              
               reject("Failed to create mesh with prompt: " + input);
             }
           });
@@ -98,9 +122,59 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
           snap3DInteractable.onFailure(error);
           print("Error submitting task or getting status: " + error);
           this.avaliableToRequest = true;
+          
+          // Remove the failed object from tracking
+          const index = this.generatedObjects.indexOf(outputObj);
+          if (index > -1) {
+            this.generatedObjects.splice(index, 1);
+            print(`🗑️ Removed failed object from tracking: ${outputObj.name}`);
+          }
+          
           reject("Failed to create mesh with prompt: " + input);
         });
     });
+  }
+
+  private manageObjectLimit() {
+    // If we're at the limit, remove the oldest object
+    if (this.generatedObjects.length >= this.maxObjects) {
+      const oldestObject = this.generatedObjects.shift(); // Remove first (oldest) object
+      if (oldestObject) {
+        print(`🗑️ Removing oldest 3D object: ${oldestObject.name}`);
+        oldestObject.destroy();
+        print(`✅ Removed oldest object. Now have ${this.generatedObjects.length} objects`);
+      }
+    }
+  }
+
+  public setMaxObjects(max: number) {
+    this.maxObjects = max;
+    print(`🔧 Set max 3D objects to: ${max}`);
+    
+    // If we're over the new limit, remove excess objects
+    while (this.generatedObjects.length > this.maxObjects) {
+      const oldestObject = this.generatedObjects.shift();
+      if (oldestObject) {
+        oldestObject.destroy();
+      }
+    }
+  }
+
+  public clearAllObjects() {
+    print(`🗑️ Clearing all ${this.generatedObjects.length} 3D objects...`);
+    this.generatedObjects.forEach(obj => {
+      obj.destroy();
+    });
+    this.generatedObjects = [];
+    print(`✅ Cleared all 3D objects`);
+  }
+
+  public getObjectCount(): number {
+    return this.generatedObjects.length;
+  }
+
+  public getObjects(): SceneObject[] {
+    return [...this.generatedObjects];
   }
 
   private onTap() {}
