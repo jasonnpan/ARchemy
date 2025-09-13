@@ -194,7 +194,7 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
       print(`📝 Created button object: ${buttonObject.name}`);
       
       // Position the button - simple vertical spacing
-      const yOffset = -index * 10.0;
+      const yOffset = -index * 10.0 - 10.0;
       buttonObject.getTransform().setLocalPosition(new vec3(0, yOffset, 0));
       print(`📍 Positioned ${element} button at Y: ${yOffset}`);
 
