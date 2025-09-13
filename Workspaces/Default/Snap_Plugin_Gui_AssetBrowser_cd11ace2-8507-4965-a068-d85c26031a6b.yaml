@@ -1,7 +1,7 @@
 CollapsedEntities:
   type: stringset
   value:
-    size: 719
+    size: 720
     values:
       - ""
       - LSTween.lspkg
@@ -66,6 +66,7 @@ CollapsedEntities:
       - Remote Service Gateway.lspkg/HostedSnap/RemoteServiceModules/Snap3D_Submit.remoteServiceModule
       - Remote Service Gateway.lspkg/HostedSnap/Snap3D.ts
       - Remote Service Gateway.lspkg/HostedSnap/Snap3DTypes.ts
+      - Remote Service Gateway.lspkg/Prefabs
       - Remote Service Gateway.lspkg/README.md
       - Remote Service Gateway.lspkg/Resources
       - Remote Service Gateway.lspkg/Resources/Audio Output.audioOutput

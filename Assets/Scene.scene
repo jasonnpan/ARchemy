@@ -6181,7 +6181,7 @@
   PrefabRemaps:
     []
   Name: Text
-  Enabled: true
+  Enabled: false
   RenderOrder: 0
   StretchMode: Stretch
   VerticalAlignment: Center
