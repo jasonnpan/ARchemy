@@ -20,6 +20,7 @@ function checkUndefined(property, showIfData){
 // @ui {"widget":"group_end"}
 // @input bool runOnTap
 // @input Asset.ObjectPrefab snap3DInteractablePrefab
+// @input AssignableType generator
 var scriptPrototype = Object.getPrototypeOf(script);
 if (!global.BaseScriptComponent){
    function BaseScriptComponent(){}

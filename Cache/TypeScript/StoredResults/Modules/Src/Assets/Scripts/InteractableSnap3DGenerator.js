@@ -11,6 +11,7 @@ var __selfType = requireType("./InteractableSnap3DGenerator");
 function component(target) { target.getTypeName = function () { return __selfType; }; }
 const WorldCameraFinderProvider_1 = require("SpectaclesInteractionKit.lspkg/Providers/CameraProvider/WorldCameraFinderProvider");
 const PinchButton_1 = require("SpectaclesInteractionKit.lspkg/Components/UI/PinchButton/PinchButton");
+const FunctionTimingUtils_1 = require("SpectaclesInteractionKit.lspkg/Utils/FunctionTimingUtils");
 let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends BaseScriptComponent {
     onAwake() {
         print("🚀 InteractableSnap3DGenerator onAwake called");
@@ -18,6 +19,11 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
             print("🎯 OnStartEvent triggered - setting up buttons");
             this.setupElementButtons();
         });
+        // Set up the generator reference in the factory
+        if (this.snap3DFactory) {
+            this.snap3DFactory.generator = this;
+            print("✅ Set generator reference in factory");
+        }
     }
     onUpdate() {
         // Sync the max3DObjects setting with the factory (only when it actually changes)
@@ -450,11 +456,143 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
             print("Error generating objects: " + error);
         }
     }
+    /**
+     * Subscribe to collision events from a Snap3D object
+     */
+    subscribeToCollisionEvents(snap3DInteractable) {
+        var _a;
+        if (snap3DInteractable && snap3DInteractable.onObjectDeleted) {
+            snap3DInteractable.onObjectDeleted.add((data) => {
+                this.onObjectDeleted(data);
+            });
+            print(`✅ Subscribed to collision events for ${((_a = snap3DInteractable.sceneObject) === null || _a === void 0 ? void 0 : _a.name) || 'unknown object'}`);
+        }
+        else {
+            print(`❌ Cannot subscribe to collision events - invalid Snap3DInteractable`);
+        }
+    }
+    /**
+     * Event handler called when a Snap3D object is deleted due to collision
+     */
+    onObjectDeleted(data) {
+        print(`🎯 Object deleted event received:`);
+        print(`   Object: ${data.objectName}`);
+        print(`   Element: ${data.elementType}`);
+        if (data.collisionPartner) {
+            print(`   Collision Partner: ${data.collisionPartner}`);
+            print(`💥 COLLISION DETECTED: ${data.elementType} + ${data.collisionPartner}`);
+            // Only process collision once to prevent duplicates
+            if (!this.collisionProcessing) {
+                this.collisionProcessing = true;
+                // You can add custom logic here, such as:
+                // - Generate a new combined object
+                // - Update UI elements
+                // - Play sound effects
+                // - Update score or statistics
+                // - Trigger animations
+                // Example: Generate a combination name
+                const combinationName = this.generateCombinationName(data.elementType, data.collisionPartner);
+                print(`✨ Suggested combination: ${combinationName}`);
+                // Example: Update button states or UI
+                this.updateUIAfterCollision(combinationName);
+                // Reset collision processing flag after a delay
+                (0, FunctionTimingUtils_1.setTimeout)(() => {
+                    this.collisionProcessing = false;
+                }, 1000); // 1 second delay to prevent rapid collisions
+                // Optional: Create a new combined object after a delay
+                // this.createCombinedObject(combinationName, data.elementType, data.collisionPartner);
+            }
+            else {
+                print(`⚠️ Collision already being processed, skipping duplicate`);
+            }
+        }
+        else {
+            print(`   Deleted without collision`);
+        }
+    }
+    /**
+     * Creates a new combined object after collision (optional)
+     */
+    createCombinedObject(combinationName, element1, element2) {
+        if (!this.snap3DFactory) {
+            print(`❌ Cannot create combined object - no factory available`);
+            return;
+        }
+        // Add a delay to ensure the original objects are fully destroyed
+        (0, FunctionTimingUtils_1.setTimeout)(() => {
+            print(`🎨 Creating combined object: ${combinationName}`);
+            this.snap3DFactory.createInteractable3DObject(combinationName)
+                .then((result) => {
+                print(`✅ Created combined object: ${result.status}`);
+            })
+                .catch((error) => {
+                print(`❌ Failed to create combined object: ${error}`);
+            });
+        }, 200); // 200ms delay to ensure cleanup is complete
+    }
+    /**
+     * Generates a creative combination name (you can replace this with LLM call)
+     */
+    generateCombinationName(element1, element2) {
+        print('generating combination');
+        const combinations = {
+            "fire+water": ["steam dragon", "boiling mist", "hot spring spirit"],
+            "water+fire": ["steam dragon", "boiling mist", "hot spring spirit"],
+            "fire+earth": ["lava golem", "volcano guardian", "molten rock"],
+            "fire+wind": ["fire tornado", "blazing storm", "flame cyclone"],
+            "water+earth": ["mud elemental", "swamp creature", "clay guardian"],
+            "water+wind": ["rain spirit", "storm cloud", "misty wind"],
+            "earth+wind": ["dust storm", "sand elemental", "rock tornado"],
+        };
+        const key1 = `${element1.toLowerCase()}+${element2.toLowerCase()}`;
+        const key2 = `${element2.toLowerCase()}+${element1.toLowerCase()}`;
+        if (combinations[key1]) {
+            return combinations[key1][Math.floor(Math.random() * combinations[key1].length)];
+        }
+        else if (combinations[key2]) {
+            return combinations[key2][Math.floor(Math.random() * combinations[key2].length)];
+        }
+        return `${element1} ${element2} fusion`;
+    }
+    /**
+     * Updates UI after collision (customize this for your needs)
+     */
+    updateUIAfterCollision(element) {
+        // Add a delay to ensure the previous objects are fully destroyed
+        (0, FunctionTimingUtils_1.setTimeout)(() => {
+            if (!this.snap3DFactory) {
+                print(`❌ Cannot create ${element} - no factory available`);
+                return;
+            }
+            // Check if factory is available before creating object
+            if (!this.snap3DFactory.avaliableToRequest) {
+                print(`⏳ Factory is busy, skipping ${element} creation`);
+                return;
+            }
+            print(`🎨 Creating combined object after collision: ${element}`);
+            this.snap3DFactory.createInteractable3DObject(element)
+                .then((result) => {
+                print(`✅ ${element} element created successfully: ${result.status}`);
+                print(`📝 Object tracked by factory: ${result.sceneObject.name}`);
+            })
+                .catch((error) => {
+                print(`❌ Failed to create ${element} element: ${error}`);
+                print(`💡 This might be due to:`);
+                print(`   - Missing or invalid Snap3D API key`);
+                print(`   - Snap3D service unavailable`);
+                print(`   - Rate limiting (too many requests)`);
+                print(`   - Invalid prompt format`);
+                // Reset availability flag on error
+                this.snap3DFactory.avaliableToRequest = true;
+            });
+        }, 500); // Increased delay to 500ms to ensure cleanup is complete
+    }
     __initialize() {
         super.__initialize();
         this.generatedButtons = [];
         this.generated3DObjects = [];
         this.buttonsInitialized = false;
+        this.collisionProcessing = false;
     }
 };
 exports.InteractableSnap3DGenerator = InteractableSnap3DGenerator;

@@ -1171,6 +1171,7 @@
     prompt: true
     useVertexColor: true
     runOnTap: true
+    generator: true
   ScriptTypesDefault:
     {}
   ScriptInputs:
@@ -1180,6 +1181,7 @@
       useVertexColor: false
       runOnTap: false
       snap3DInteractablePrefab: !<reference.ObjectPrefab> db10c49c-d024-4b0e-8649-a551ad0864ad
+      generator: !<MappingBased.AssignableType> 00000000-0000-0000-0000-000000000000
   ScriptTypes:
     "":
       {}

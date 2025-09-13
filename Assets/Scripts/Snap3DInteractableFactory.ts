@@ -21,6 +21,9 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
 
   @input
   snap3DInteractablePrefab: ObjectPrefab;
+  @input
+  @allowUndefined
+  private generator: any = null; // Reference to InteractableSnap3DGenerator
 
   private avaliableToRequest: boolean = true;
   private wcfmp = WorldCameraFinderProvider.getInstance();
@@ -67,6 +70,13 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
         Snap3DInteractable.getTypeName()
       );
       snap3DInteractable.setPrompt(input);
+      
+      // Set up event listener for object deletion
+      if (this.generator) {
+        this.generator.subscribeToCollisionEvents(snap3DInteractable);
+      } else {
+        print(`⚠️ No generator assigned - collision events will not be forwarded`);
+      }
 
       if (overridePosition) {
         outputObj.getTransform().setWorldPosition(overridePosition);

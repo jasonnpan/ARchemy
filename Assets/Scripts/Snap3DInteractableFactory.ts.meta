@@ -27,6 +27,7 @@
   CurrentVisibility: Editable
   MaxVisibility: Editable
   ScriptInputsHidden:
+    generator: false
     prompt: false
     refineMesh: false
     runOnTap: false
@@ -42,6 +43,7 @@
       useVertexColor: false
       runOnTap: false
       snap3DInteractablePrefab: !<reference.ObjectPrefab> 00000000-0000-0000-0000-000000000000
+      generator: !<MappingBased.AssignableType> 00000000-0000-0000-0000-000000000000
   ScriptTypes:
     -
       {}
@@ -54,3 +56,4 @@
     - '// @ui {"widget":"group_end"}'
     - // @input bool runOnTap
     - // @input Asset.ObjectPrefab snap3DInteractablePrefab
+    - // @input AssignableType generator

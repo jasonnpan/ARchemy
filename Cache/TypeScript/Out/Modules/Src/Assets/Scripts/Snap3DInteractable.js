@@ -11,6 +11,7 @@ exports.Snap3DInteractable = void 0;
 var __selfType = requireType("./Snap3DInteractable");
 function component(target) { target.getTypeName = function () { return __selfType; }; }
 const FunctionTimingUtils_1 = require("SpectaclesInteractionKit.lspkg/Utils/FunctionTimingUtils");
+const Event_1 = require("SpectaclesInteractionKit.lspkg/Utils/Event");
 let Snap3DInteractable = Snap3DInteractable_1 = class Snap3DInteractable extends BaseScriptComponent {
     onAwake() {
         // Clone the image material to avoid modifying the original
@@ -67,14 +68,22 @@ let Snap3DInteractable = Snap3DInteractable_1 = class Snap3DInteractable extends
                 }
                 if (otherSnap3D) {
                     print(`COLLISION! ${this.promptDisplay.text} hit ${otherSnap3D.promptDisplay.text}`);
-                    // Delete both objects on collision
-                    this.deleteOnCollision();
-                    otherSnap3D.deleteOnCollision();
+                    // Only process collision if neither object is already being deleted
+                    if (!this.isBeingDeleted && !otherSnap3D.isBeingDeleted) {
+                        this.isBeingDeleted = true;
+                        otherSnap3D.isBeingDeleted = true;
+                        // Delete both objects on collision
+                        this.deleteOnCollision(otherSnap3D.promptDisplay.text);
+                        otherSnap3D.deleteOnCollision(this.promptDisplay.text);
+                    }
                 }
                 else {
                     // print(`Collision with non-Snap3D object: ${otherObject.name}`);
                     // Still delete this object when colliding with non-Snap3D objects
-                    this.deleteOnCollision();
+                    if (!this.isBeingDeleted) {
+                        this.isBeingDeleted = true;
+                        this.deleteOnCollision();
+                    }
                 }
             });
             this.hasSetupCollision = true;
@@ -114,14 +123,22 @@ let Snap3DInteractable = Snap3DInteractable_1 = class Snap3DInteractable extends
                             }
                             if (otherSnap3D) {
                                 print(`COLLISION! ${this.promptDisplay.text} hit ${otherSnap3D.promptDisplay.text}`);
-                                // Delete both objects on collision
-                                this.deleteOnCollision();
-                                otherSnap3D.deleteOnCollision();
+                                // Only process collision if neither object is already being deleted
+                                if (!this.isBeingDeleted && !otherSnap3D.isBeingDeleted) {
+                                    this.isBeingDeleted = true;
+                                    otherSnap3D.isBeingDeleted = true;
+                                    // Delete both objects on collision
+                                    this.deleteOnCollision(otherSnap3D.promptDisplay.text);
+                                    otherSnap3D.deleteOnCollision(this.promptDisplay.text);
+                                }
                             }
                             else {
                                 // print(`Collision with non-Snap3D object: ${otherObject.name}`);
                                 // Still delete this object when colliding with non-Snap3D objects
-                                this.deleteOnCollision();
+                                if (!this.isBeingDeleted) {
+                                    this.isBeingDeleted = true;
+                                    this.deleteOnCollision();
+                                }
                             }
                         }
                     }
@@ -155,14 +172,22 @@ let Snap3DInteractable = Snap3DInteractable_1 = class Snap3DInteractable extends
                         }
                         if (otherSnap3D) {
                             print(`COLLISION! ${this.promptDisplay.text} hit ${otherSnap3D.promptDisplay.text}`);
-                            // Delete both objects on collision
-                            this.deleteOnCollision();
-                            otherSnap3D.deleteOnCollision();
+                            // Only process collision if neither object is already being deleted
+                            if (!this.isBeingDeleted && !otherSnap3D.isBeingDeleted) {
+                                this.isBeingDeleted = true;
+                                otherSnap3D.isBeingDeleted = true;
+                                // Delete both objects on collision
+                                this.deleteOnCollision(otherSnap3D.promptDisplay.text);
+                                otherSnap3D.deleteOnCollision(this.promptDisplay.text);
+                            }
                         }
                         else {
                             // print(`Collision with non-Snap3D object: ${otherObject.name}`);
                             // Still delete this object when colliding with non-Snap3D objects
-                            this.deleteOnCollision();
+                            if (!this.isBeingDeleted) {
+                                this.isBeingDeleted = true;
+                                this.deleteOnCollision();
+                            }
                         }
                     });
                 }
@@ -218,8 +243,10 @@ let Snap3DInteractable = Snap3DInteractable_1 = class Snap3DInteractable extends
     /**
      * Deletes the object when it collides with another object
      */
-    deleteOnCollision() {
-        // print(`Deleting object due to collision: ${this.promptDisplay.text}`);
+    deleteOnCollision(collisionPartner) {
+        const objectName = this.sceneObject ? this.sceneObject.name : "Unknown";
+        const elementType = this.promptDisplay ? this.promptDisplay.text : "Unknown";
+        print(`🗑️ Deleting object due to collision: ${elementType}${collisionPartner ? ` (collided with ${collisionPartner})` : ''}`);
         // Clean up models
         if (this.tempModel) {
             this.tempModel.destroy();
@@ -229,14 +256,28 @@ let Snap3DInteractable = Snap3DInteractable_1 = class Snap3DInteractable extends
             this.finalModel.destroy();
             this.finalModel = null;
         }
-        // Disable UI elements
-        this.img.enabled = false;
-        this.spinner.enabled = false;
+        // Disable UI elements safely
+        if (this.img) {
+            this.img.enabled = false;
+        }
+        if (this.spinner) {
+            this.spinner.enabled = false;
+        }
         // Disable the collider object to prevent further interactions
-        this.colliderObj.enabled = false;
+        if (this.colliderObj) {
+            this.colliderObj.enabled = false;
+        }
+        // Trigger the event before destroying the object
+        this.onObjectDeleted.invoke({
+            objectName: objectName,
+            elementType: elementType,
+            collisionPartner: collisionPartner
+        });
         // Small delay to let physics system clean up before destroying
         (0, FunctionTimingUtils_1.setTimeout)(() => {
-            this.sceneObject.destroy();
+            if (this.sceneObject) {
+                this.sceneObject.destroy();
+            }
         }, 50); // 50ms delay
     }
     /**
@@ -253,6 +294,8 @@ let Snap3DInteractable = Snap3DInteractable_1 = class Snap3DInteractable extends
         this.size = 20;
         this.sizeVec = null;
         this.hasSetupCollision = false;
+        this.isBeingDeleted = false;
+        this.onObjectDeleted = new Event_1.default();
     }
 };
 exports.Snap3DInteractable = Snap3DInteractable;
