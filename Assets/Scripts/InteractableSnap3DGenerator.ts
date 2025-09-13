@@ -8,19 +8,20 @@ export class InteractableImageGenerator extends BaseScriptComponent {
   @input
   snap3DFactory: Snap3DInteractableFactory;
   @ui.separator
-  @input
-  private asrQueryController: ASRQueryController;
-  @input
-  private targetPosition: SceneObject;
+  // @input
+  // private asrQueryController: ASRQueryController;
+  // @input
+  // private targetPosition: SceneObject;
 
   onAwake() {
     this.createEvent("OnStartEvent").bind(() => {
-      this.asrQueryController.onQueryEvent.add((query) => {
-        this.snap3DFactory.createInteractable3DObject(
-          query,
-          this.targetPosition.getTransform().getWorldPosition()
-        );
-      });
+      this.snap3DFactory.createInteractable3DObject("A cute dog wearing a hat");
+    //   this.asrQueryController.onQueryEvent.add((query) => {
+    //     this.snap3DFactory.createInteractable3DObject(
+    //       query,
+    //       this.targetPosition.getTransform().getWorldPosition()
+    //     );
+    //   });
     });
   }
 }
