@@ -13,9 +13,23 @@ function checkUndefined(property, showIfData){
    }
 }
 // @ui {"widget":"separator"}
-// @ui {"widget":"label", "label":"Example of using generative 3D with Snap3D"}
+// @ui {"widget":"label", "label":"Element Generator with Pinch Buttons"}
 // @input AssignableType snap3DFactory
 // @ui {"widget":"separator"}
+// @ui {"widget":"label", "label":"Element Button Prefab"}
+// @input Asset.ObjectPrefab elementButtonPrefab {"hint":"Prefab to instantiate for each button"}
+// @ui {"widget":"separator"}
+// @ui {"widget":"label", "label":"Manual Buttons (Fallback)"}
+// @input AssignableType_1[] manualButtons = {} {"hint":"Manually created PinchButton components (one for each element, in order)"}
+// @ui {"widget":"separator"}
+// @ui {"widget":"label", "label":"Element List"}
+// @input string[] elementList = {"fire","water","earth","wind"}
+// @ui {"widget":"separator"}
+// @ui {"widget":"label", "label":"Layout Settings"}
+// @input float buttonSpacing = 10
+// @ui {"widget":"separator"}
+// @ui {"widget":"label", "label":"3D Object Management"}
+// @input float max3DObjects = 2 {"hint":"Maximum number of 3D objects to keep on screen at once"}
 var scriptPrototype = Object.getPrototypeOf(script);
 if (!global.BaseScriptComponent){
    function BaseScriptComponent(){}
@@ -32,6 +46,9 @@ script.__initialize();
 let awakeEvent = script.createEvent("OnAwakeEvent");
 awakeEvent.bind(() => {
     checkUndefined("snap3DFactory", []);
+    checkUndefined("elementList", []);
+    checkUndefined("buttonSpacing", []);
+    checkUndefined("max3DObjects", []);
     if (script.onAwake) {
        script.onAwake();
     }

@@ -163,14 +163,14 @@ export class AIAssistantUIBridge extends BaseScriptComponent {
         // Create the 3D object and handle the response
         this.snap3DInteractableFactory
           .createInteractable3DObject(data.args.prompt)
-          .then((status) => {
+          .then((result) => {
             if (this.assistantType === AssistantType.Gemini) {
-              this.geminiAssistant.sendFunctionCallUpdate(data.name, status);
+              this.geminiAssistant.sendFunctionCallUpdate(data.name, result.status);
             } else {
               this.openAIAssistant.sendFunctionCallUpdate(
                 data.name,
                 data.callId,
-                status
+                result.status
               );
             }
           })

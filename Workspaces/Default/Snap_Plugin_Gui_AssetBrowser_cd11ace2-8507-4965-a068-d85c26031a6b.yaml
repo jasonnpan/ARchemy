@@ -3,7 +3,6 @@ CollapsedEntities:
   value:
     size: 718
     values:
-      - ""
       - LSTween.lspkg
       - LSTween.lspkg/Examples
       - LSTween.lspkg/Examples/Assets
@@ -108,6 +107,7 @@ CollapsedEntities:
       - Scripts/Snap3DInteractable.ts
       - Scripts/Snap3DInteractableFactory.ts
       - Scripts/SphereController.ts
+      - SpectaclesInteractionKit 2.lspkg/package.native
       - SpectaclesInteractionKit.lspkg
       - SpectaclesInteractionKit.lspkg/Assets
       - SpectaclesInteractionKit.lspkg/Assets/Audio

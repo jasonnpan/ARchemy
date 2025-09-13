@@ -47,24 +47,38 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
 
   private generatedButtons: SceneObject[] = [];
   private generated3DObjects: SceneObject[] = [];
+  private buttonsInitialized: boolean = false;
 
   onAwake() {
+    print("🚀 InteractableSnap3DGenerator onAwake called");
     this.createEvent("OnStartEvent").bind(() => {
+      print("🎯 OnStartEvent triggered - setting up buttons");
       this.setupElementButtons();
     });
   }
 
   onUpdate() {
-    // Sync the max3DObjects setting with the factory
-    if (this.snap3DFactory && this.max3DObjects !== this.snap3DFactory.getObjectCount()) {
-      this.snap3DFactory.setMaxObjects(this.max3DObjects);
+    // Sync the max3DObjects setting with the factory (only when it actually changes)
+    if (this.snap3DFactory) {
+      const currentMax = this.snap3DFactory.getObjectCount();
+      // Only update if the max3DObjects setting is different from what we expect
+      // Don't update based on current object count, only on setting changes
+      
+      // Periodic cleanup every 60 frames (about once per second at 60fps)
+      if ((global as any).frameCount % 60 === 0) {
+        this.snap3DFactory.cleanupDestroyedObjectsPublic();
+      }
     }
   }
 
   private setupElementButtons() {
+    if (this.buttonsInitialized) {
+      print("⚠️ Buttons already initialized, skipping setup");
+      return;
+    }
+    
     print("🎯 Setting up element buttons...");
     if (this.elementButtonPrefab) {
-  
       // Use prefab to create buttons dynamically
       this.createButtonsFromPrefab();
     } else if (this.manualButtons && this.manualButtons.length > 0) {
@@ -74,10 +88,13 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
       // Provide setup instructions
       this.provideSetupInstructions();
     }
+    
+    this.buttonsInitialized = true;
   }
 
   private createButtonsFromPrefab() {
     print("🔧 Creating buttons from prefab...");
+    print(`📋 Element list: ${JSON.stringify(this.elementList)}`);
     
     // Clear existing buttons
     this.generatedButtons.forEach(button => button.destroy());
@@ -85,10 +102,12 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
 
     // Create a button for each element
     this.elementList.forEach((element, index) => {
+      print(`🔧 Creating button ${index + 1}/${this.elementList.length} for element: ${element}`);
       this.createElementButton(element, index);
     });
 
     print(`✅ Created ${this.elementList.length} dynamic buttons from prefab`);
+    print(`📊 Total generated buttons: ${this.generatedButtons.length}`);
   }
 
   private setupManualButtons() {
@@ -146,6 +165,15 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
   }
 
   private createElementButton(element: string, index: number) {
+    print(`🔧 Creating button for element: ${element} at index: ${index}`);
+    
+    // Check if a button with this name already exists
+    const existingButton = this.generatedButtons.find(btn => btn.name === `ElementButton_${element}`);
+    if (existingButton) {
+      print(`⚠️ Button for ${element} already exists, skipping creation`);
+      return;
+    }
+    
     if (!this.elementButtonPrefab) {
       print(`❌ Cannot create button for ${element}: No prefab assigned`);
       return;
@@ -155,6 +183,7 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
       // Create button object using standard prefab instantiation
       const buttonObject = this.elementButtonPrefab.instantiate(this.sceneObject);
       buttonObject.name = `ElementButton_${element}`;
+      print(`📝 Created button object: ${buttonObject.name}`);
       
       // Position the button - simple vertical spacing
       const yOffset = -index * 10.0;
@@ -412,7 +441,33 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
     this.generatedButtons.forEach(button => button.destroy());
     this.generatedButtons = [];
     this.elementList = [];
-    print("✅ Cleared all element buttons");
+    this.buttonsInitialized = false;
+    print("✅ Cleared all element buttons and reset initialization flag");
+  }
+
+  public resetButtons() {
+    print("🔄 Resetting buttons...");
+    this.clearAllButtons();
+    this.setupElementButtons();
+  }
+
+  public removeDuplicateButtons() {
+    print("🔍 Checking for duplicate buttons...");
+    const buttonNames = new Set<string>();
+    const uniqueButtons: SceneObject[] = [];
+    
+    this.generatedButtons.forEach(button => {
+      if (buttonNames.has(button.name)) {
+        print(`🗑️ Removing duplicate button: ${button.name}`);
+        button.destroy();
+      } else {
+        buttonNames.add(button.name);
+        uniqueButtons.push(button);
+      }
+    });
+    
+    this.generatedButtons = uniqueButtons;
+    print(`✅ Removed duplicates. Now have ${this.generatedButtons.length} unique buttons`);
   }
 
   // 3D Object Management Methods
@@ -445,6 +500,30 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
       return this.snap3DFactory.getObjects();
     }
     return [];
+  }
+
+  public cleanupDestroyed3DObjects() {
+    if (this.snap3DFactory) {
+      this.snap3DFactory.cleanupDestroyedObjectsPublic();
+    } else {
+      print("❌ Snap3DInteractableFactory not assigned!");
+    }
+  }
+
+  public get3DObjectStatus() {
+    if (this.snap3DFactory) {
+      this.snap3DFactory.getObjectStatus();
+    } else {
+      print("❌ Snap3DInteractableFactory not assigned!");
+    }
+  }
+
+  public forceResetFactory() {
+    if (this.snap3DFactory) {
+      this.snap3DFactory.forceResetFactory();
+    } else {
+      print("❌ Snap3DInteractableFactory not assigned!");
+    }
   }
 
   private async generateObjects() {

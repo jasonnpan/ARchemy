@@ -41,6 +41,9 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
     overridePosition?: vec3
   ): Promise<{ status: string; sceneObject: SceneObject }> {
     return new Promise((resolve, reject) => {
+      print(`🎯 Creating 3D object for: ${input}`);
+      print(`📊 Before creation - Objects tracked: ${this.generatedObjects.length}/${this.maxObjects}`);
+      
       if (!this.avaliableToRequest) {
         print("Already processing a request. Please wait.");
         return;
@@ -49,6 +52,8 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
       
       // Check if we need to remove the oldest object before creating a new one
       this.manageObjectLimit();
+      
+      print(`📊 After limit check - Objects tracked: ${this.generatedObjects.length}/${this.maxObjects}`);
       
       let outputObj = this.snap3DInteractablePrefab.instantiate(
         this.sceneObject
@@ -136,6 +141,9 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
   }
 
   private manageObjectLimit() {
+    // First, clean up any destroyed objects from our tracking
+    this.cleanupDestroyedObjects();
+    
     // If we're at the limit, remove the oldest object
     if (this.generatedObjects.length >= this.maxObjects) {
       const oldestObject = this.generatedObjects.shift(); // Remove first (oldest) object
@@ -143,6 +151,33 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
         print(`🗑️ Removing oldest 3D object: ${oldestObject.name}`);
         oldestObject.destroy();
         print(`✅ Removed oldest object. Now have ${this.generatedObjects.length} objects`);
+      }
+    }
+  }
+
+  private cleanupDestroyedObjects() {
+    const beforeCount = this.generatedObjects.length;
+    this.generatedObjects = this.generatedObjects.filter(obj => {
+      // Check if the object still exists and is not destroyed
+      try {
+        // Try to access a property to see if the object is still valid
+        const name = obj.name;
+        return name !== null && name !== undefined;
+      } catch (e) {
+        // Object is destroyed, remove from tracking
+        print(`🗑️ Cleaning up destroyed object from tracking`);
+        return false;
+      }
+    });
+    
+    const removedCount = beforeCount - this.generatedObjects.length;
+    if (removedCount > 0) {
+      print(`🧹 Cleaned up ${removedCount} destroyed objects. Now have ${this.generatedObjects.length} objects`);
+      
+      // If we cleaned up objects and the factory is busy, reset it
+      if (!this.avaliableToRequest) {
+        print(`🔄 Factory was busy, resetting availability after cleanup`);
+        this.avaliableToRequest = true;
       }
     }
   }
@@ -175,6 +210,30 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
 
   public getObjects(): SceneObject[] {
     return [...this.generatedObjects];
+  }
+
+  public cleanupDestroyedObjectsPublic() {
+    this.cleanupDestroyedObjects();
+  }
+
+  public getObjectStatus() {
+    this.cleanupDestroyedObjects();
+    print(`📊 Object Status: ${this.generatedObjects.length}/${this.maxObjects} objects tracked`);
+    print(`🔧 Factory available: ${this.avaliableToRequest}`);
+    this.generatedObjects.forEach((obj, index) => {
+      try {
+        print(`   ${index + 1}. ${obj.name} (valid)`);
+      } catch (e) {
+        print(`   ${index + 1}. [DESTROYED] (invalid)`);
+      }
+    });
+  }
+
+  public forceResetFactory() {
+    print(`🔄 Force resetting factory state...`);
+    this.cleanupDestroyedObjects();
+    this.avaliableToRequest = true;
+    print(`✅ Factory reset complete. Available: ${this.avaliableToRequest}, Objects: ${this.generatedObjects.length}`);
   }
 
   private onTap() {}

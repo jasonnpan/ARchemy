@@ -415,7 +415,6 @@
   Enabled: true
   ScriptAsset: !<reference> 59491b38-58e8-4937-a76b-165a2ed86093
   ScriptInputsDefault:
-    elementButtonPrefab: true
     manualButtons: true
     elementList: true
     buttonSpacing: true
@@ -425,7 +424,7 @@
   ScriptInputs:
     "":
       snap3DFactory: !<MappingBased.AssignableType> 4aa30a81-2a3a-4c2d-a9fa-30d11d91584f
-      elementButtonPrefab: !<reference.ObjectPrefab> 00000000-0000-0000-0000-000000000000
+      elementButtonPrefab: !<reference.ObjectPrefab> 3f1b4a51-3285-4f2e-9a93-d84b2827c8c1
       manualButtons: !<MappingBased.AssignableType_1[]>
         []
       elementList: !<string[]>
