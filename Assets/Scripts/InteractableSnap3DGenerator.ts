@@ -414,7 +414,7 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
       const centerPosition = wcfmp.getForwardPosition(100);
       
       // Create positions side by side (left and right of center)
-      const spacing = 30; // Distance between objects (increased to prevent collision)
+      const spacing = 20; // Distance between objects (increased to prevent collision)
       const leftPosition = centerPosition.add(new vec3(-spacing, 0, 0));
       const rightPosition = centerPosition.add(new vec3(spacing, 0, 0));
       

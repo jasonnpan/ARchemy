@@ -32,7 +32,7 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
             const wcfmp = WorldCameraFinderProvider_1.default.getInstance();
             const centerPosition = wcfmp.getForwardPosition(100);
             // Create positions side by side (left and right of center)
-            const spacing = 30; // Distance between objects (increased to prevent collision)
+            const spacing = 20; // Distance between objects (increased to prevent collision)
             const leftPosition = centerPosition.add(new vec3(-spacing, 0, 0));
             const rightPosition = centerPosition.add(new vec3(spacing, 0, 0));
             // Generate objects at specific positions
