@@ -36,8 +36,8 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
             const leftPosition = centerPosition.add(new vec3(-spacing, 0, 0));
             const rightPosition = centerPosition.add(new vec3(spacing, 0, 0));
             // Generate objects at specific positions
-            await this.snap3DFactory.createInteractable3DObject("dog", leftPosition);
-            await this.snap3DFactory.createInteractable3DObject("peanut", rightPosition);
+            await this.snap3DFactory.createInteractable3DObject("a dog", leftPosition);
+            await this.snap3DFactory.createInteractable3DObject("a peanut", rightPosition);
         }
         catch (error) {
             print("Error generating objects: " + error);
