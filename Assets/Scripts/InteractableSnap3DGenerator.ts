@@ -1,9 +1,10 @@
 import { ASRQueryController } from "./ASRQueryController";
 import { Snap3DInteractableFactory } from "./Snap3DInteractableFactory";
+import WorldCameraFinderProvider from "SpectaclesInteractionKit.lspkg/Providers/CameraProvider/WorldCameraFinderProvider";
 import { PinchButton } from "SpectaclesInteractionKit.lspkg/Components/UI/PinchButton/PinchButton";
 
 @component
-export class InteractableImageGenerator extends BaseScriptComponent {
+export class InteractableSnap3DGenerator extends BaseScriptComponent {
   @ui.separator
   @ui.label("Element Generator with Pinch Buttons")
   @input
@@ -404,5 +405,24 @@ export class InteractableImageGenerator extends BaseScriptComponent {
     this.generatedButtons = [];
     this.elementList = [];
     print("✅ Cleared all element buttons");
+  }
+
+  private async generateObjects() {
+    try {
+      // Get the forward position from the camera
+      const wcfmp = WorldCameraFinderProvider.getInstance();
+      const centerPosition = wcfmp.getForwardPosition(100);
+      
+      // Create positions side by side (left and right of center)
+      const spacing = 30; // Distance between objects (increased to prevent collision)
+      const leftPosition = centerPosition.add(new vec3(-spacing, 0, 0));
+      const rightPosition = centerPosition.add(new vec3(spacing, 0, 0));
+      
+      // Generate objects at specific positions
+      await this.snap3DFactory.createInteractable3DObject("flame", leftPosition);
+      await this.snap3DFactory.createInteractable3DObject("chicken", rightPosition);
+    } catch (error) {
+      print("Error generating objects: " + error);
+    }
   }
 }

@@ -16,8 +16,6 @@ function checkUndefined(property, showIfData){
 // @ui {"widget":"label", "label":"Example of using generative 3D with Snap3D"}
 // @input AssignableType snap3DFactory
 // @ui {"widget":"separator"}
-// @input AssignableType_1 asrQueryController
-// @input SceneObject targetPosition
 var scriptPrototype = Object.getPrototypeOf(script);
 if (!global.BaseScriptComponent){
    function BaseScriptComponent(){}
@@ -29,13 +27,11 @@ if (!global.BaseScriptComponent){
    }
 }
 var Module = require("../../../../Modules/Src/Assets/Scripts/InteractableSnap3DGenerator");
-Object.setPrototypeOf(script, Module.InteractableImageGenerator.prototype);
+Object.setPrototypeOf(script, Module.InteractableSnap3DGenerator.prototype);
 script.__initialize();
 let awakeEvent = script.createEvent("OnAwakeEvent");
 awakeEvent.bind(() => {
     checkUndefined("snap3DFactory", []);
-    checkUndefined("asrQueryController", []);
-    checkUndefined("targetPosition", []);
     if (script.onAwake) {
        script.onAwake();
     }
