@@ -46,12 +46,8 @@
         - fire
         - water
         - earth
-        - lightning
         - wind
-        - ice
-        - plant
-        - metal
-      buttonSpacing: !<float> 2.000000
+      buttonSpacing: !<float> 10.000000
       max3DObjects: !<float> 2.000000
   ScriptTypes:
     -
