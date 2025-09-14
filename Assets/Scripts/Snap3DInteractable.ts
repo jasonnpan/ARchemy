@@ -1,4 +1,6 @@
 import { setTimeout } from "SpectaclesInteractionKit.lspkg/Utils/FunctionTimingUtils";
+import Event from "SpectaclesInteractionKit.lspkg/Utils/Event";
+
 @component
 export class Snap3DInteractable extends BaseScriptComponent {
   @input
@@ -20,6 +22,10 @@ export class Snap3DInteractable extends BaseScriptComponent {
   private size: number = 20;
   private sizeVec: vec3 = null;
   private hasSetupCollision: boolean = false;
+  private isBeingDeleted: boolean = false; // Prevent multiple collision events
+  
+  // Event that gets triggered when an object is deleted due to collision
+  public onObjectDeleted: Event<{objectName: string, elementType: string, collisionPartner?: string}> = new Event();
 
   onAwake() {
     // Clone the image material to avoid modifying the original
@@ -84,13 +90,21 @@ export class Snap3DInteractable extends BaseScriptComponent {
         
         if (otherSnap3D) {
           print(`COLLISION! ${this.promptDisplay.text} hit ${otherSnap3D.promptDisplay.text}`);
-          // Delete both objects on collision
-          this.deleteOnCollision();
-          otherSnap3D.deleteOnCollision();
+          // Only process collision if neither object is already being deleted
+          if (!this.isBeingDeleted && !otherSnap3D.isBeingDeleted) {
+            this.isBeingDeleted = true;
+            otherSnap3D.isBeingDeleted = true;
+            // Delete both objects on collision
+            this.deleteOnCollision(otherSnap3D.promptDisplay.text);
+            otherSnap3D.deleteOnCollision(this.promptDisplay.text);
+          }
         } else {
           // print(`Collision with non-Snap3D object: ${otherObject.name}`);
           // Still delete this object when colliding with non-Snap3D objects
-          this.deleteOnCollision();
+          if (!this.isBeingDeleted) {
+            this.isBeingDeleted = true;
+            this.deleteOnCollision();
+          }
         }
       });
       this.hasSetupCollision = true;
@@ -134,13 +148,21 @@ export class Snap3DInteractable extends BaseScriptComponent {
               
               if (otherSnap3D) {
                 print(`COLLISION! ${this.promptDisplay.text} hit ${otherSnap3D.promptDisplay.text}`);
-                // Delete both objects on collision
-                this.deleteOnCollision();
-                otherSnap3D.deleteOnCollision();
+                // Only process collision if neither object is already being deleted
+                if (!this.isBeingDeleted && !otherSnap3D.isBeingDeleted) {
+                  this.isBeingDeleted = true;
+                  otherSnap3D.isBeingDeleted = true;
+                  // Delete both objects on collision
+                  this.deleteOnCollision(otherSnap3D.promptDisplay.text);
+                  otherSnap3D.deleteOnCollision(this.promptDisplay.text);
+                }
               } else {
                 // print(`Collision with non-Snap3D object: ${otherObject.name}`);
                 // Still delete this object when colliding with non-Snap3D objects
-                this.deleteOnCollision();
+                if (!this.isBeingDeleted) {
+                  this.isBeingDeleted = true;
+                  this.deleteOnCollision();
+                }
               }
             }
           }
@@ -179,13 +201,21 @@ export class Snap3DInteractable extends BaseScriptComponent {
             
             if (otherSnap3D) {
               print(`COLLISION! ${this.promptDisplay.text} hit ${otherSnap3D.promptDisplay.text}`);
-              // Delete both objects on collision
-              this.deleteOnCollision();
-              otherSnap3D.deleteOnCollision();
+              // Only process collision if neither object is already being deleted
+              if (!this.isBeingDeleted && !otherSnap3D.isBeingDeleted) {
+                this.isBeingDeleted = true;
+                otherSnap3D.isBeingDeleted = true;
+                // Delete both objects on collision
+                this.deleteOnCollision(otherSnap3D.promptDisplay.text);
+                otherSnap3D.deleteOnCollision(this.promptDisplay.text);
+              }
             } else {
               // print(`Collision with non-Snap3D object: ${otherObject.name}`);
               // Still delete this object when colliding with non-Snap3D objects
-              this.deleteOnCollision();
+              if (!this.isBeingDeleted) {
+                this.isBeingDeleted = true;
+                this.deleteOnCollision();
+              }
             }
           });
         }
@@ -246,8 +276,11 @@ export class Snap3DInteractable extends BaseScriptComponent {
   /**
    * Deletes the object when it collides with another object
    */
-  private deleteOnCollision() {
-    // print(`Deleting object due to collision: ${this.promptDisplay.text}`);
+  private deleteOnCollision(collisionPartner?: string) {
+    const objectName = this.sceneObject ? this.sceneObject.name : "Unknown";
+    const elementType = this.promptDisplay ? this.promptDisplay.text : "Unknown";
+    
+    print(`🗑️ Deleting object due to collision: ${elementType}${collisionPartner ? ` (collided with ${collisionPartner})` : ''}`);
     
     // Clean up models
     if (this.tempModel) {
@@ -259,16 +292,31 @@ export class Snap3DInteractable extends BaseScriptComponent {
       this.finalModel = null;
     }
     
-    // Disable UI elements
-    this.img.enabled = false;
-    this.spinner.enabled = false;
+    // Disable UI elements safely
+    if (this.img) {
+      this.img.enabled = false;
+    }
+    if (this.spinner) {
+      this.spinner.enabled = false;
+    }
     
     // Disable the collider object to prevent further interactions
-    this.colliderObj.enabled = false;
+    if (this.colliderObj) {
+      this.colliderObj.enabled = false;
+    }
+    
+    // Trigger the event before destroying the object
+    this.onObjectDeleted.invoke({
+      objectName: objectName,
+      elementType: elementType,
+      collisionPartner: collisionPartner
+    });
     
     // Small delay to let physics system clean up before destroying
     setTimeout(() => {
-      this.sceneObject.destroy();
+      if (this.sceneObject) {
+        this.sceneObject.destroy();
+      }
     }, 50); // 50ms delay
   }
 

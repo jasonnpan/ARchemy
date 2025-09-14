@@ -1,5 +1,5 @@
 ExternalSources:
   type: "std::map<Es::Uuid, Es::Path>"
   value:
-    - 53f64649-e873-4197-8560-9a50cd8e26ef: /Users/jasonpan/Library/Preferences/Snap/Lens Studio/LibraryComponents/SpectaclesInteractionKit.lspkg
+    - 1f8cabf9-b2ec-4612-9c4a-3f46ab778c66: /Users/jasonpan/Library/Preferences/Snap/Lens Studio/LibraryComponents/SpectaclesSyncKit.lspkg
   options: 4

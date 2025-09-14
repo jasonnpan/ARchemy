@@ -27,6 +27,11 @@
   CurrentVisibility: Editable
   MaxVisibility: Editable
   ScriptInputsHidden:
+    buttonSpacing: false
+    elementButtonPrefab: false
+    elementList: false
+    manualButtons: false
+    max3DObjects: false
     snap3DFactory: false
   ScriptTypesHidden:
     {}
@@ -34,11 +39,35 @@
   DeclarationFile: !<reference> 00000000-0000-0000-0000-000000000000
   DefaultScriptInputs:
     - snap3DFactory: !<MappingBased.AssignableType> 00000000-0000-0000-0000-000000000000
+      elementButtonPrefab: !<reference.ObjectPrefab> 00000000-0000-0000-0000-000000000000
+      manualButtons: !<MappingBased.AssignableType_1[]>
+        []
+      elementList: !<string[]>
+        - fire
+        - water
+        - earth
+        - wind
+      buttonSpacing: !<float> 10.000000
+      max3DObjects: !<float> 2.000000
   ScriptTypes:
     -
       {}
   InputLines:
     - '// @ui {"widget":"separator"}'
-    - '// @ui {"widget":"label", "label":"Example of using generative 3D with Snap3D"}'
+    - '// @ui {"widget":"label", "label":"Element Generator with Pinch Buttons"}'
     - // @input AssignableType snap3DFactory
     - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"Element Button Prefab"}'
+    - '// @input Asset.ObjectPrefab elementButtonPrefab {"hint":"Prefab to instantiate for each button"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"Manual Buttons (Fallback)"}'
+    - '// @input AssignableType_1[] manualButtons = {} {"hint":"Manually created PinchButton components (one for each element, in order)"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"Element List"}'
+    - '// @input string[] elementList = {"fire","water","ground","air","life","science","concept"}'
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"Layout Settings"}'
+    - // @input float buttonSpacing = 10
+    - '// @ui {"widget":"separator"}'
+    - '// @ui {"widget":"label", "label":"3D Object Management"}'
+    - '// @input float max3DObjects = 2 {"hint":"Maximum number of 3D objects to keep on screen at once"}'
