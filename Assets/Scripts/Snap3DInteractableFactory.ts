@@ -3,6 +3,8 @@ import { Snap3DTypes } from "Remote Service Gateway.lspkg/HostedSnap/Snap3DTypes
 import { Snap3DInteractable } from "./Snap3DInteractable";
 
 import WorldCameraFinderProvider from "SpectaclesInteractionKit.lspkg/Providers/CameraProvider/WorldCameraFinderProvider";
+import { CacheAPIService, cacheAPIUrl } from "./CacheAPIService";
+import { clearTimeout, setTimeout } from "SpectaclesInteractionKit.lspkg/Utils/FunctionTimingUtils";
 
 @component
 export class Snap3DInteractableFactory extends BaseScriptComponent {
@@ -29,6 +31,8 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
   private wcfmp = WorldCameraFinderProvider.getInstance();
   private generatedObjects: SceneObject[] = [];
   private maxObjects: number = 2;
+
+  private cacheAPIService: CacheAPIService = CacheAPIService.getInstance();
 
   onAwake() {
     this.createEvent("TapEvent").bind(() => {
@@ -85,67 +89,43 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
         outputObj.getTransform().setWorldPosition(newPos);
       }
 
-      Snap3D.submitAndGetStatus({
-        prompt: input,
-        format: "glb",
-        refine: this.refineMesh,
-        use_vertex_color: this.useVertexColor,
-      })
-        .then((submitGetStatusResults) => {
-          submitGetStatusResults.event.add(([value, assetOrError]) => {
-            if (value === "image") {
-              assetOrError = assetOrError as Snap3DTypes.TextureAssetData;
-              snap3DInteractable.setImage(assetOrError.texture);
-            } else if (value === "base_mesh") {
-              assetOrError = assetOrError as Snap3DTypes.GltfAssetData;
-              if (!this.refineMesh) {
-                snap3DInteractable.setModel(assetOrError.gltfAsset, true);
-                this.avaliableToRequest = true;
-                resolve({
-                  status: "Successfully created mesh with prompt: " + input,
-                  sceneObject: outputObj
-                });
-              } else {
-                snap3DInteractable.setModel(assetOrError.gltfAsset, false);
-              }
-            } else if (value === "refined_mesh") {
-              assetOrError = assetOrError as Snap3DTypes.GltfAssetData;
-              snap3DInteractable.setModel(assetOrError.gltfAsset, true);
-              this.avaliableToRequest = true;
-              resolve({
-                status: "Successfully created mesh with prompt: " + input,
-                sceneObject: outputObj
-              });
-            } else if (value === "failed") {
-              assetOrError = assetOrError as Snap3DTypes.ErrorData;
-              print("Error: " + assetOrError.errorMsg);
-              //snap3DInteractable.onFailure(assetOrError.errorMsg);
-              this.avaliableToRequest = true;
-              
-              // Remove the failed object from tracking
-              const index = this.generatedObjects.indexOf(outputObj);
-              if (index > -1) {
-                this.generatedObjects.splice(index, 1);
-                print(`🗑️ Removed failed object from tracking: ${outputObj.name}`);
-              }
-              
-              reject("Failed to create mesh with prompt: " + input);
-            }
-          });
+      // Add a flag to prevent multiple executions
+      let hasResolved = false;
+      
+      const safeResolve = (result: any) => {
+        if (!hasResolved) {
+          hasResolved = true;
+          resolve(result);
+        }
+      };
+      
+      const safeReject = (error: any) => {
+        if (!hasResolved) {
+          hasResolved = true;
+          reject(error);
+        }
+      };
+
+      // Check cache first, then proceed with generation if not found
+      this.cacheAPIService.queryAsset(input)
+        .then((result) => {
+          if (hasResolved) return; // Prevent race condition
+          
+          if (result.found) {
+            print(`🔍 Asset found in cache: ${result.data?.word_c}`);
+            this.loadGltfFromUrl(cacheAPIUrl + "/download/" + result.data?.word_c, snap3DInteractable, safeResolve, safeReject);
+          } else {
+            print(`🔍 Asset not yet in cache: ${input}`);
+            // Continue with Snap3D generation since not found in cache
+            this.generateWithSnap3D(input, snap3DInteractable, outputObj, safeResolve, safeReject);
+          }
         })
         .catch((error) => {
-          snap3DInteractable.onFailure(error);
-          print("Error submitting task or getting status: " + error);
-          this.avaliableToRequest = true;
+          if (hasResolved) return; // Prevent race condition
           
-          // Remove the failed object from tracking
-          const index = this.generatedObjects.indexOf(outputObj);
-          if (index > -1) {
-            this.generatedObjects.splice(index, 1);
-            print(`🗑️ Removed failed object from tracking: ${outputObj.name}`);
-          }
-          
-          reject("Failed to create mesh with prompt: " + input);
+          print(`❌ Failed to query asset from cache: ${error}`);
+          // Continue with Snap3D generation on cache error
+          this.generateWithSnap3D(input, snap3DInteractable, outputObj, safeResolve, safeReject);
         });
     });
   }
@@ -247,4 +227,158 @@ export class Snap3DInteractableFactory extends BaseScriptComponent {
   }
 
   private onTap() {}
+
+  /**
+   * Load a GLB file from a URL and set it as the model
+   */
+  private loadGltfFromUrl(url: string, snap3DInteractable: Snap3DInteractable, resolve: Function, reject: Function) {
+    const rsm = require("LensStudio:RemoteServiceModule") as RemoteServiceModule;
+    const rmm = require("LensStudio:RemoteMediaModule") as RemoteMediaModule;
+    
+    print(`🔄 Loading GLB from URL: ${url}`);
+    
+    // Add timeout to prevent infinite hanging
+    const timeoutId = setTimeout(() => {
+      print(`⏰ Timeout loading GLB from URL: ${url}`);
+      this.avaliableToRequest = true;
+      snap3DInteractable.onFailure(`Timeout loading model from URL: ${url}`);
+      
+      const index = this.generatedObjects.indexOf(snap3DInteractable.sceneObject);
+      if (index > -1) {
+        this.generatedObjects.splice(index, 1);
+        print(`🗑️ Removed failed object from tracking: ${snap3DInteractable.sceneObject.name}`);
+      }
+      
+      reject(`Timeout loading GLB from URL: ${url}`);
+    }, 15000); // 15 second timeout
+    
+    try {
+      const resource = rsm.makeResourceFromUrl(url);
+      print(`✅ Resource created successfully from URL: ${url}`);
+      
+      rmm.loadResourceAsGltfAsset(
+        resource,
+        (gltfAsset: GltfAsset) => {
+          clearTimeout(timeoutId);
+          print(`✅ Successfully loaded GLB from URL: ${url}`);
+          snap3DInteractable.setModel(gltfAsset, true);
+          
+          this.avaliableToRequest = true;
+          resolve({
+            status: "Successfully loaded GLB from URL: " + url,
+            sceneObject: snap3DInteractable.sceneObject
+          });
+        },
+        () => {
+          clearTimeout(timeoutId);
+          print(`❌ Failed to load GLB from URL: ${url}`);
+          
+          this.avaliableToRequest = true;
+          snap3DInteractable.onFailure(`Failed to load model from URL: ${url}`);
+          
+          const index = this.generatedObjects.indexOf(snap3DInteractable.sceneObject);
+          if (index > -1) {
+            this.generatedObjects.splice(index, 1);
+            print(`🗑️ Removed failed object from tracking: ${snap3DInteractable.sceneObject.name}`);
+          }
+          
+          reject(`Failed to load GLB from URL: ${url}`);
+        }
+      );
+    } catch (error) {
+      clearTimeout(timeoutId);
+      print(`❌ Error creating resource from URL: ${url}, Error: ${error}`);
+      this.avaliableToRequest = true;
+      snap3DInteractable.onFailure(`Error creating resource from URL: ${url}`);
+      
+      const index = this.generatedObjects.indexOf(snap3DInteractable.sceneObject);
+      if (index > -1) {
+        this.generatedObjects.splice(index, 1);
+        print(`🗑️ Removed failed object from tracking: ${snap3DInteractable.sceneObject.name}`);
+      }
+      
+      reject(`Error creating resource from URL: ${url}`);
+    }
+  }
+
+  private generateWithSnap3D(
+    input: string,
+    snap3DInteractable: Snap3DInteractable,
+    outputObj: SceneObject,
+    resolve: Function,
+    reject: Function
+  ) {
+    print(`🔄 Submitting task to Snap3D`);
+
+
+    Snap3D.submitAndGetStatus({
+      prompt: input,
+      format: "glb",
+      refine: this.refineMesh,
+      use_vertex_color: this.useVertexColor,
+    })
+      .then((submitGetStatusResults) => {
+        submitGetStatusResults.event.add(([value, assetOrError]) => {
+          if (value === "image") {
+            assetOrError = assetOrError as Snap3DTypes.TextureAssetData;
+            print(assetOrError.url);
+            snap3DInteractable.setImage(assetOrError.texture);
+          } else if (value === "base_mesh") {
+            assetOrError = assetOrError as Snap3DTypes.GltfAssetData;
+            print(assetOrError.url);
+            if (!this.refineMesh) {
+              snap3DInteractable.setModel(assetOrError.gltfAsset, true);
+              this.cacheAPIService.updateAsset(input, assetOrError.url);
+              print(`🔍 Updated asset in cache: ${input}`);
+              this.avaliableToRequest = true;
+              resolve({
+                status: "Successfully created mesh with prompt: " + input,
+                sceneObject: outputObj
+              });
+            } else {
+              snap3DInteractable.setModel(assetOrError.gltfAsset, false);
+            }
+          } else if (value === "refined_mesh") {
+            assetOrError = assetOrError as Snap3DTypes.GltfAssetData;
+            print(assetOrError.url);
+            snap3DInteractable.setModel(assetOrError.gltfAsset, true);
+            this.cacheAPIService.updateAsset(input, assetOrError.url);
+            print(`🔍 Updated asset in cache: ${input}`);
+            this.avaliableToRequest = true;
+            resolve({
+              status: "Successfully created mesh with prompt: " + input,
+              sceneObject: outputObj
+            });
+          } else if (value === "failed") {
+            assetOrError = assetOrError as Snap3DTypes.ErrorData;
+            print("Error: " + assetOrError.errorMsg);
+            //snap3DInteractable.onFailure(assetOrError.errorMsg);
+            this.avaliableToRequest = true;
+            
+            // Remove the failed object from tracking
+            const index = this.generatedObjects.indexOf(outputObj);
+            if (index > -1) {
+              this.generatedObjects.splice(index, 1);
+              print(`🗑️ Removed failed object from tracking: ${outputObj.name}`);
+            }
+            
+            reject("Failed to create mesh with prompt: " + input);
+          }
+        });
+      })
+      .catch((error) => {
+        snap3DInteractable.onFailure(error);
+        print("Error submitting task or getting status: " + error);
+        this.avaliableToRequest = true;
+        
+        // Remove the failed object from tracking
+        const index = this.generatedObjects.indexOf(outputObj);
+        if (index > -1) {
+          this.generatedObjects.splice(index, 1);
+          print(`🗑️ Removed failed object from tracking: ${outputObj.name}`);
+        }
+        
+        reject("Failed to create mesh with prompt: " + input);
+      });
+  }
 }

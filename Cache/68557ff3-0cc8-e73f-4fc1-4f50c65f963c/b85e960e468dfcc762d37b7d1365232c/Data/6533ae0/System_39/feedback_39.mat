@@ -1,8 +1,16 @@
+<<<<<<< Updated upstream
 - !<Material/9c668bd1-f598-4d2e-89a0-ec2f2598c042>
   PackagePath: ""
   PassesInfo:
     - !<own> bfd8dcd7-9e3f-4bc2-8ad6-e8941395705c
 - !<PassInfo/bfd8dcd7-9e3f-4bc2-8ad6-e8941395705c>
+=======
+- !<Material/5cfbbdf0-a9a9-45c0-bce9-ac2cc95278be>
+  PackagePath: ""
+  PassesInfo:
+    - !<own> 5926592d-96be-4da3-8dc7-5a4c7ca61440
+- !<PassInfo/5926592d-96be-4da3-8dc7-5a4c7ca61440>
+>>>>>>> Stashed changes
   CachedProperties:
     []
   DepthWrite: false

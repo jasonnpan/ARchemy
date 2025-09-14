@@ -1,7 +1,9 @@
 // MergeManager.ts
 import { OpenAI } from 'Remote Service Gateway.lspkg/HostedExternal/OpenAI';
+import { CacheAPIService } from './CacheAPIService';
 
 export async function mergeTitles(titleA: string, titleB: string): Promise<string> {
+
   let response = await OpenAI.chatCompletions({
     model: 'gpt-4.1-nano',
     messages: [

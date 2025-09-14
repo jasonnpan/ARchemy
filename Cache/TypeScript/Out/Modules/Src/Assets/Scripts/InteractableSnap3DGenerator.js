@@ -13,6 +13,7 @@ const WorldCameraFinderProvider_1 = require("SpectaclesInteractionKit.lspkg/Prov
 const PinchButton_1 = require("SpectaclesInteractionKit.lspkg/Components/UI/PinchButton/PinchButton");
 const FunctionTimingUtils_1 = require("SpectaclesInteractionKit.lspkg/Utils/FunctionTimingUtils");
 const MergeManager_1 = require("./MergeManager");
+const CacheAPIService_1 = require("./CacheAPIService");
 let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends BaseScriptComponent {
     onAwake() {
         print("🚀 InteractableSnap3DGenerator onAwake called");
@@ -549,8 +550,29 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
      * Generates a creative combination name (you can replace this with LLM call)
      */
     async generateCombinationName(element1, element2) {
+        const result = await this.cacheAPIService.queryCombination(element1, element2)
+            .then((result) => {
+            var _a, _b;
+            if (result.found) {
+                print(`Merged title: ${(_a = result.data) === null || _a === void 0 ? void 0 : _a.word_c}`);
+                return ((_b = result.data) === null || _b === void 0 ? void 0 : _b.word_c) || null;
+            }
+            else {
+                print(`No merged title found, generating new one`);
+                return null;
+            }
+        })
+            .catch((error) => {
+            print("Error fetching from cache: " + error);
+            return null;
+        });
+        if (result !== null) {
+            print(`🔍 Merged title found in cache: ${result}`);
+            return result;
+        }
         try {
             const merged = await (0, MergeManager_1.mergeTitles)(element1, element2);
+            this.cacheAPIService.updateCombination(element1, element2, merged);
             print(`Merged title: ${merged}`);
             return merged;
         }
@@ -673,6 +695,7 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
         this.generated3DObjects = [];
         this.buttonsInitialized = false;
         this.collisionProcessing = false;
+        this.cacheAPIService = CacheAPIService_1.CacheAPIService.getInstance();
     }
 };
 exports.InteractableSnap3DGenerator = InteractableSnap3DGenerator;

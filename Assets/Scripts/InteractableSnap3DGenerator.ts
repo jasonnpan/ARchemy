@@ -4,6 +4,7 @@ import WorldCameraFinderProvider from "SpectaclesInteractionKit.lspkg/Providers/
 import { PinchButton } from "SpectaclesInteractionKit.lspkg/Components/UI/PinchButton/PinchButton";
 import { setTimeout } from "SpectaclesInteractionKit.lspkg/Utils/FunctionTimingUtils";
 import { mergeTitles } from './MergeManager';
+import { CacheAPIService } from "./CacheAPIService";
 
 @component
 export class InteractableSnap3DGenerator extends BaseScriptComponent {
@@ -54,7 +55,8 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
   private generated3DObjects: SceneObject[] = [];
   private buttonsInitialized: boolean = false;
   private collisionProcessing: boolean = false; // Prevent duplicate collision processing
-
+  private cacheAPIService: CacheAPIService = CacheAPIService.getInstance();
+  
   onAwake() {
     print("🚀 InteractableSnap3DGenerator onAwake called");
     this.createEvent("OnStartEvent").bind(() => {
@@ -654,16 +656,37 @@ export class InteractableSnap3DGenerator extends BaseScriptComponent {
   /**
    * Generates a creative combination name (you can replace this with LLM call)
    */
-private async generateCombinationName(element1: string, element2: string): Promise<string> {
-  try {
-    const merged = await mergeTitles(element1, element2);
-    print(`Merged title: ${merged}`);
-    return merged;
-  } catch (err) {
-    print("Error merging titles: " + err);
-    return "Error";
+  private async generateCombinationName(element1: string, element2: string): Promise<string> {
+    const result: string | null = await this.cacheAPIService.queryCombination(element1, element2)
+      .then((result) => {
+        if (result.found) {
+          print(`Merged title: ${result.data?.word_c}`);
+          return result.data?.word_c || null;
+        } else {
+          print(`No merged title found, generating new one`);
+          return null;
+        }
+      })
+      .catch((error) => {
+        print("Error fetching from cache: " + error);
+        return null;
+      });
+
+    if (result !== null) {
+      print(`🔍 Merged title found in cache: ${result}`);
+      return result;
+    }
+
+    try {
+      const merged = await mergeTitles(element1, element2);
+      this.cacheAPIService.updateCombination(element1, element2, merged);
+      print(`Merged title: ${merged}`);
+      return merged;
+    } catch (err) {
+      print("Error merging titles: " + err);
+      return "Error";
+    }
   }
-}
 
   /**
    * Updates UI after collision (customize this for your needs)

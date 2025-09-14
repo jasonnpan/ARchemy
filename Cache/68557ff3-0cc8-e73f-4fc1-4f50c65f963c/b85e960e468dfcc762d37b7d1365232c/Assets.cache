@@ -1,6 +1,7 @@
 - !<AssetCache>
   AssetFiles:
     c403bf42-b482-4aef-8906-13532712a354: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/Rocket_clouds_emit.vfxgraph
+<<<<<<< Updated upstream
     3365d392-36d0-4f9c-8f71-d5f824bcf41d: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/6533ae0/System_39/script_39.js
     9c668bd1-f598-4d2e-89a0-ec2f2598c042: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/6533ae0/System_39/feedback_39.mat
     84e22463-2fc3-402b-8245-fe95ccbbb3ea: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/6533ae0/System_39/feedback_39.glsl
@@ -8,10 +9,20 @@
     bc3cb058-d034-4038-b887-59eea7e82201: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/6533ae0/System_39/render_39.glsl
     2753265a-04df-4036-8cea-8e54e09a23ad: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/6533ae0/System_39/simulate_39.mat
     1af3794a-21d3-4940-8958-887c5d79db06: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/6533ae0/System_39/simulate_39.glsl
+=======
+    6f3de4dd-f5ae-40cf-852b-1c68a5452bdd: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/6533ae0/System_39/script_39.js
+    5cfbbdf0-a9a9-45c0-bce9-ac2cc95278be: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/6533ae0/System_39/feedback_39.mat
+    211b92d4-0653-41ac-ba6c-d61215fa7c3e: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/6533ae0/System_39/feedback_39.glsl
+    53ef8d8a-77e1-437b-b422-044d56f88e2e: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/6533ae0/System_39/render_39.mat
+    0ebd5dbf-8931-45ea-9b12-e6d845aac353: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/6533ae0/System_39/render_39.glsl
+    9b69f2f8-fc6b-49b5-aa68-20ce7691b7e8: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/6533ae0/System_39/simulate_39.mat
+    15789b6e-84e7-4337-ae46-9450bb9837f0: 68557ff3-0cc8-e73f-4fc1-4f50c65f963c/b85e960e468dfcc762d37b7d1365232c/Data/6533ae0/System_39/simulate_39.glsl
+>>>>>>> Stashed changes
   Assets:
     - !<VFXAsset/c403bf42-b482-4aef-8906-13532712a354>
       PackagePath: ""
       Systems:
+<<<<<<< Updated upstream
         39: !<VFXSystem/93091476-acf5-45a2-b2aa-08a35f6b14e8>
           FeedbackMaterial: !<Material/9c668bd1-f598-4d2e-89a0-ec2f2598c042>
             PackagePath: ""
@@ -26,6 +37,22 @@
             PassesInfo:
               - !<own> 3580ff3f-db63-4f39-b520-ba7709cb41fa
           FeedbackPass: !<Pass/84e22463-2fc3-402b-8245-fe95ccbbb3ea>
+=======
+        39: !<VFXSystem/1055218a-7ed9-4a44-ab12-f4b092d9c66d>
+          FeedbackMaterial: !<Material/5cfbbdf0-a9a9-45c0-bce9-ac2cc95278be>
+            PackagePath: ""
+            PassesInfo:
+              - !<own> 5926592d-96be-4da3-8dc7-5a4c7ca61440
+          SimulateMaterial: !<Material/9b69f2f8-fc6b-49b5-aa68-20ce7691b7e8>
+            PackagePath: ""
+            PassesInfo:
+              - !<own> 7c11c8f7-11a1-4a63-9c60-3d495dccbe4c
+          RenderMaterial: !<Material/53ef8d8a-77e1-437b-b422-044d56f88e2e>
+            PackagePath: ""
+            PassesInfo:
+              - !<own> f2e158fa-0d31-453c-a572-204167f63dc2
+          FeedbackPass: !<Pass/211b92d4-0653-41ac-ba6c-d61215fa7c3e>
+>>>>>>> Stashed changes
             PackagePath: ""
             DefaultDefines:
               []
@@ -549,7 +576,11 @@
               PassBindings:
                 []
               ShaderType: Mesh3d
+<<<<<<< Updated upstream
           SimulatePass: !<Pass/1af3794a-21d3-4940-8958-887c5d79db06>
+=======
+          SimulatePass: !<Pass/15789b6e-84e7-4337-ae46-9450bb9837f0>
+>>>>>>> Stashed changes
             PackagePath: ""
             DefaultDefines:
               []
@@ -1152,7 +1183,11 @@
                   mValues:
                     []
               ShaderType: PostProcessing
+<<<<<<< Updated upstream
           RenderPass: !<Pass/bc3cb058-d034-4038-b887-59eea7e82201>
+=======
+          RenderPass: !<Pass/0ebd5dbf-8931-45ea-9b12-e6d845aac353>
+>>>>>>> Stashed changes
             PackagePath: ""
             DefaultDefines:
               []
@@ -1689,7 +1724,11 @@
                   mValues:
                     []
               ShaderType: PostProcessing
+<<<<<<< Updated upstream
           Script: !<JavaScriptAsset/3365d392-36d0-4f9c-8f71-d5f824bcf41d>
+=======
+          Script: !<JavaScriptAsset/6f3de4dd-f5ae-40cf-852b-1c68a5452bdd>
+>>>>>>> Stashed changes
             PackagePath: Manager_Script
             Description: ""
             SvgIcon: ""
@@ -1761,7 +1800,77 @@
   FileHash: 738caff7ba659a9503cd8d2b8fbee7fa
   NativePackageItems:
     []
+<<<<<<< Updated upstream
 - !<PassInfo/2e34f7b9-f418-4a20-b6e4-be9492d9332f>
+=======
+- !<PassInfo/5926592d-96be-4da3-8dc7-5a4c7ca61440>
+  CachedProperties:
+    []
+  DepthWrite: false
+  DepthTest: false
+  DepthFunction: Always
+  TwoSided: true
+  ColorMask: {x: true, y: true, z: true, w: true}
+  CullMode: Back
+  PolygonOffset: {x: 0.000000, y: 0.000000}
+  FrustumCulling: Auto
+  FrustumCullPad: 0.000000
+  InstanceCount: 1
+  Defines:
+    []
+  BlendMode: Disabled
+  Properties:
+    renderTarget0:
+      typeIdx: 9
+      value:
+        id: ffffffff-ffff-ffff-ffff-ffffffffffff
+        sampler:
+          filteringMode: Trilinear
+          wrapModeU: Repeat
+          wrapModeV: Repeat
+          wrapModeW: ClampToEdge
+          borderColor: {x: 0.000000, y: 0.000000, z: 0.000000, w: 0.000000}
+          mipmaps: false
+        type: Texture2D
+    renderTarget1:
+      typeIdx: 9
+      value:
+        id: ffffffff-ffff-ffff-ffff-ffffffffffff
+        sampler:
+          filteringMode: Trilinear
+          wrapModeU: Repeat
+          wrapModeV: Repeat
+          wrapModeW: ClampToEdge
+          borderColor: {x: 0.000000, y: 0.000000, z: 0.000000, w: 0.000000}
+          mipmaps: false
+        type: Texture2D
+    renderTarget2:
+      typeIdx: 9
+      value:
+        id: ffffffff-ffff-ffff-ffff-ffffffffffff
+        sampler:
+          filteringMode: Trilinear
+          wrapModeU: Repeat
+          wrapModeV: Repeat
+          wrapModeW: ClampToEdge
+          borderColor: {x: 0.000000, y: 0.000000, z: 0.000000, w: 0.000000}
+          mipmaps: false
+        type: Texture2D
+    renderTarget3:
+      typeIdx: 9
+      value:
+        id: ffffffff-ffff-ffff-ffff-ffffffffffff
+        sampler:
+          filteringMode: Trilinear
+          wrapModeU: Repeat
+          wrapModeV: Repeat
+          wrapModeW: ClampToEdge
+          borderColor: {x: 0.000000, y: 0.000000, z: 0.000000, w: 0.000000}
+          mipmaps: false
+        type: Texture2D
+  Pass: !<reference> 211b92d4-0653-41ac-ba6c-d61215fa7c3e
+- !<PassInfo/7c11c8f7-11a1-4a63-9c60-3d495dccbe4c>
+>>>>>>> Stashed changes
   CachedProperties:
     - uReset:
         typeIdx: 0
@@ -2436,8 +2545,13 @@
     vfxTargetWidth:
       typeIdx: 0
       value: 0
+<<<<<<< Updated upstream
   Pass: !<reference> 1af3794a-21d3-4940-8958-887c5d79db06
 - !<PassInfo/3580ff3f-db63-4f39-b520-ba7709cb41fa>
+=======
+  Pass: !<reference> 15789b6e-84e7-4337-ae46-9450bb9837f0
+- !<PassInfo/f2e158fa-0d31-453c-a572-204167f63dc2>
+>>>>>>> Stashed changes
   CachedProperties:
     []
   DepthWrite: true
@@ -2778,6 +2892,7 @@
     vfxTargetWidth:
       typeIdx: 0
       value: 0
+<<<<<<< Updated upstream
   Pass: !<reference> bc3cb058-d034-4038-b887-59eea7e82201
 - !<PassInfo/bfd8dcd7-9e3f-4bc2-8ad6-e8941395705c>
   CachedProperties:
@@ -2845,3 +2960,6 @@
           mipmaps: false
         type: Texture2D
   Pass: !<reference> 84e22463-2fc3-402b-8245-fe95ccbbb3ea
+=======
+  Pass: !<reference> 0ebd5dbf-8931-45ea-9b12-e6d845aac353
+>>>>>>> Stashed changes
