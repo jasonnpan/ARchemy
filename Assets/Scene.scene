@@ -416,7 +416,6 @@
   ScriptAsset: !<reference> 59491b38-58e8-4937-a76b-165a2ed86093
   ScriptInputsDefault:
     manualButtons: true
-    elementList: true
     buttonSpacing: true
     max3DObjects: true
   ScriptTypesDefault:
@@ -430,8 +429,11 @@
       elementList: !<string[]>
         - fire
         - water
-        - earth
-        - wind
+        - ground
+        - air
+        - life
+        - science
+        - ""
       buttonSpacing: !<float> 10.000000
       max3DObjects: !<float> 2.000000
   ScriptTypes:

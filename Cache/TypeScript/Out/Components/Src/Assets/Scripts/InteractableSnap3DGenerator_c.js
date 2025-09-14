@@ -23,7 +23,7 @@ function checkUndefined(property, showIfData){
 // @input AssignableType_1[] manualButtons = {} {"hint":"Manually created PinchButton components (one for each element, in order)"}
 // @ui {"widget":"separator"}
 // @ui {"widget":"label", "label":"Element List"}
-// @input string[] elementList = {"fire","water","earth","wind"}
+// @input string[] elementList = {"fire","water","ground","air","life","science","concept"}
 // @ui {"widget":"separator"}
 // @ui {"widget":"label", "label":"Layout Settings"}
 // @input float buttonSpacing = 10

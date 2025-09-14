@@ -111,12 +111,15 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
     createSimpleButton(element, index) {
         // In Lens Studio, we can't create scene objects programmatically
         // Instead, we'll provide clear instructions for manual setup
-        const yOffset = -index * this.buttonSpacing - 10.0;
+        const column = index % 2; // 0 for left column, 1 for right column
+        const row = Math.floor(index / 2); // Row number (0, 1, 2, ...)
+        const xOffset = column === 0 ? -this.buttonSpacing * 1.25 : this.buttonSpacing * 1.25;
+        const yOffset = -row * this.buttonSpacing - 10.0;
         print(`📝 Element ${index + 1}: ${element}`);
         print(`   - Create a scene object named "ElementButton_${element}"`);
         print(`   - Add PinchButton component`);
         print(`   - Add Interactable component (required for PinchButton)`);
-        print(`   - Position at Y offset: ${yOffset} (downward expansion, accounting for labels)`);
+        print(`   - Position at X: ${xOffset}, Y: ${yOffset} (2-column layout with moderate spacing, column: ${column}, row: ${row})`);
         print(`   - Connect to generateElement("${element}") function`);
     }
     createElementButton(element, index) {
@@ -136,10 +139,13 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
             const buttonObject = this.elementButtonPrefab.instantiate(this.sceneObject);
             buttonObject.name = `ElementButton_${element}`;
             print(`📝 Created button object: ${buttonObject.name}`);
-            // Position the button - expand downwards with proper spacing, accounting for labels
-            const yOffset = -index * this.buttonSpacing - 10.0;
-            buttonObject.getTransform().setLocalPosition(new vec3(0, yOffset, 0));
-            print(`📍 Positioned ${element} button at Y: ${yOffset} (index: ${index}, spacing: ${this.buttonSpacing})`);
+            // Position the button - 2 column layout with moderate column spacing
+            const column = index % 2; // 0 for left column, 1 for right column
+            const row = Math.floor(index / 2); // Row number (0, 1, 2, ...)
+            const xOffset = column === 0 ? -this.buttonSpacing * 1.25 : this.buttonSpacing * 1.25;
+            const yOffset = -row * this.buttonSpacing - 10.0;
+            buttonObject.getTransform().setLocalPosition(new vec3(xOffset, yOffset, 0));
+            print(`📍 Positioned ${element} button at X: ${xOffset}, Y: ${yOffset} (index: ${index}, column: ${column}, row: ${row})`);
             // Debug: List all components on the prefab
             try {
                 const allComponents = buttonObject.getComponents(BaseScriptComponent.getTypeName());
@@ -345,12 +351,15 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
     }
     repositionButtons() {
         this.generatedButtons.forEach((button, index) => {
-            // Simple downward expansion - each button is positioned below the previous one, accounting for labels
-            const yOffset = -index * this.buttonSpacing - 10.0;
-            button.getTransform().setLocalPosition(new vec3(0, yOffset, 0));
-            print(`🔄 Repositioned button ${index}: ${button.name} at Y: ${yOffset}`);
+            // 2 column layout with moderate column spacing - reposition all buttons
+            const column = index % 2; // 0 for left column, 1 for right column
+            const row = Math.floor(index / 2); // Row number (0, 1, 2, ...)
+            const xOffset = column === 0 ? -this.buttonSpacing * 1.25 : this.buttonSpacing * 1.25;
+            const yOffset = -row * this.buttonSpacing - 10.0;
+            button.getTransform().setLocalPosition(new vec3(xOffset, yOffset, 0));
+            print(`🔄 Repositioned button ${index}: ${button.name} at X: ${xOffset}, Y: ${yOffset} (column: ${column}, row: ${row})`);
         });
-        print(`📊 Repositioned ${this.generatedButtons.length} buttons with spacing: ${this.buttonSpacing}`);
+        print(`📊 Repositioned ${this.generatedButtons.length} buttons in 2-column layout with moderate column spacing: ${this.buttonSpacing}`);
     }
     getElementList() {
         return [...this.elementList];
@@ -496,6 +505,7 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
                 // - Update score or statistics
                 // - Trigger animations
                 // Example: Generate a combination name
+                print(`hiiii ${data.elementType}, ${data.collisionPartner}`);
                 const combinationName = await this.generateCombinationName(data.elementType, data.collisionPartner);
                 print(`✨ Suggested combination: ${combinationName}`);
                 // Example: Update button states or UI
