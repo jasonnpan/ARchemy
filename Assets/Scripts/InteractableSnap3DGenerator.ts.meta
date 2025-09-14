@@ -45,8 +45,11 @@
       elementList: !<string[]>
         - fire
         - water
-        - earth
-        - wind
+        - ground
+        - air
+        - life
+        - science
+        - concept
       buttonSpacing: !<float> 10.000000
       max3DObjects: !<float> 2.000000
   ScriptTypes:

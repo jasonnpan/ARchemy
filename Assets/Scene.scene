@@ -427,12 +427,12 @@
       manualButtons: !<MappingBased.AssignableType_1[]>
         []
       elementList: !<string[]>
-        - fire
-        - water
-        - ground
-        - air
-        - life
-        - science
+        - Fire
+        - Water
+        - Ground
+        - Air
+        - Life
+        - Science
         - concept
       buttonSpacing: !<float> 10.000000
       max3DObjects: !<float> 2.000000
