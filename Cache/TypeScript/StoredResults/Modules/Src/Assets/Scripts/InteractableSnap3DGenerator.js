@@ -143,7 +143,7 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
             const column = index % 2; // 0 for left column, 1 for right column
             const row = Math.floor(index / 2); // Row number (0, 1, 2, ...)
             const xOffset = column === 0 ? -this.buttonSpacing * 1.25 : this.buttonSpacing * 1.25;
-            const yOffset = -row * this.buttonSpacing - 10.0;
+            const yOffset = -row * this.buttonSpacing - 7.5;
             buttonObject.getTransform().setLocalPosition(new vec3(xOffset, yOffset, 0));
             print(`📍 Positioned ${element} button at X: ${xOffset}, Y: ${yOffset} (index: ${index}, column: ${column}, row: ${row})`);
             // Debug: List all components on the prefab

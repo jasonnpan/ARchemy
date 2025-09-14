@@ -1,5 +1,5 @@
 ExternalSources:
   type: "std::map<Es::Uuid, Es::Path>"
   value:
-    - d4abdc31-37be-493c-9311-72f2e51a99de: "C:/Program Files/Snap Inc/Lens Studio/JsPlugins/PresetsRegistry/Assets/TypeScript/Resources/Untitled TypeScript.ts"
+    - 1f8cabf9-b2ec-4612-9c4a-3f46ab778c66: /Users/jasonpan/Library/Preferences/Snap/Lens Studio/LibraryComponents/SpectaclesSyncKit.lspkg
   options: 4

@@ -433,7 +433,7 @@
         - air
         - life
         - science
-        - ""
+        - concept
       buttonSpacing: !<float> 10.000000
       max3DObjects: !<float> 2.000000
   ScriptTypes:
@@ -932,19 +932,19 @@
   ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
   ShadowDensity: 1.000000
   Text: |
-    Click on the items to spawn them!
+    Click on the blocks below to spawn them!
 
   Editable: false
   ShowEditingPreview: true
   TouchHandler: !<reference> 00000000-0000-0000-0000-000000000000
   SizeToFit: false
-  FontSize: 60
+  FontSize: 100
   Font: !<reference> 00000000-0000-0000-0000-000000000000
   LayoutRect:
     left: -7.500000
     bottom: -2.250000
     right: 7.500000
-    top: 2.250000
+    top: 12.000000
   OverflowVertical: Overflow
   OverflowHorizontal: Overflow
   Fill: !<TextFill>
@@ -2333,18 +2333,18 @@
   MeshShadowMode: None
   ShadowColor: {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}
   ShadowDensity: 1.000000
-  Text: Items
+  Text: Building Blocks
   Editable: false
   ShowEditingPreview: true
   TouchHandler: !<reference> 00000000-0000-0000-0000-000000000000
   SizeToFit: false
-  FontSize: 80
+  FontSize: 120
   Font: !<reference> 00000000-0000-0000-0000-000000000000
   LayoutRect:
     left: -7.500000
     bottom: -2.250000
     right: 7.500000
-    top: 2.250000
+    top: 10.000000
   OverflowVertical: Overflow
   OverflowHorizontal: Overflow
   Fill: !<TextFill>
