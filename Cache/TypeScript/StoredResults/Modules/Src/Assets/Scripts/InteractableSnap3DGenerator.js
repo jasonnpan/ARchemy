@@ -111,11 +111,12 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
     createSimpleButton(element, index) {
         // In Lens Studio, we can't create scene objects programmatically
         // Instead, we'll provide clear instructions for manual setup
+        const yOffset = -index * this.buttonSpacing - 10.0;
         print(`📝 Element ${index + 1}: ${element}`);
         print(`   - Create a scene object named "ElementButton_${element}"`);
         print(`   - Add PinchButton component`);
         print(`   - Add Interactable component (required for PinchButton)`);
-        print(`   - Position at Y offset: ${(this.elementList.length - 1 - index) * this.buttonSpacing - (this.elementList.length - 1) * this.buttonSpacing / 2}`);
+        print(`   - Position at Y offset: ${yOffset} (downward expansion, accounting for labels)`);
         print(`   - Connect to generateElement("${element}") function`);
     }
     createElementButton(element, index) {
@@ -135,10 +136,10 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
             const buttonObject = this.elementButtonPrefab.instantiate(this.sceneObject);
             buttonObject.name = `ElementButton_${element}`;
             print(`📝 Created button object: ${buttonObject.name}`);
-            // Position the button - simple vertical spacing
-            const yOffset = -index * 10.0 - 10.0;
+            // Position the button - expand downwards with proper spacing, accounting for labels
+            const yOffset = -index * this.buttonSpacing - 10.0;
             buttonObject.getTransform().setLocalPosition(new vec3(0, yOffset, 0));
-            print(`📍 Positioned ${element} button at Y: ${yOffset}`);
+            print(`📍 Positioned ${element} button at Y: ${yOffset} (index: ${index}, spacing: ${this.buttonSpacing})`);
             // Debug: List all components on the prefab
             try {
                 const allComponents = buttonObject.getComponents(BaseScriptComponent.getTypeName());
@@ -344,9 +345,12 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
     }
     repositionButtons() {
         this.generatedButtons.forEach((button, index) => {
-            const yOffset = (this.elementList.length - 1 - index) * this.buttonSpacing - (this.elementList.length - 1) * this.buttonSpacing / 2;
+            // Simple downward expansion - each button is positioned below the previous one, accounting for labels
+            const yOffset = -index * this.buttonSpacing - 10.0;
             button.getTransform().setLocalPosition(new vec3(0, yOffset, 0));
+            print(`🔄 Repositioned button ${index}: ${button.name} at Y: ${yOffset}`);
         });
+        print(`📊 Repositioned ${this.generatedButtons.length} buttons with spacing: ${this.buttonSpacing}`);
     }
     getElementList() {
         return [...this.elementList];
@@ -565,6 +569,8 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
                 .then((result) => {
                 print(`✅ ${element} element created successfully: ${result.status}`);
                 print(`📝 Object tracked by factory: ${result.sceneObject.name}`);
+                // Add the new combination to the element list and create a button for it
+                this.addNewCombinationToSidebar(element);
             })
                 .catch((error) => {
                 print(`❌ Failed to create ${element} element: ${error}`);
@@ -577,6 +583,79 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
                 this.snap3DFactory.avaliableToRequest = true;
             });
         }, 500); // Increased delay to 500ms to ensure cleanup is complete
+    }
+    /**
+     * Adds a new combination to the element list and creates a button for it
+     */
+    addNewCombinationToSidebar(combinationName) {
+        // Check if this combination already exists in the list
+        if (this.elementList.includes(combinationName)) {
+            print(`⚠️ Combination "${combinationName}" already exists in element list`);
+            return;
+        }
+        print(`🆕 Adding new combination to sidebar: ${combinationName}`);
+        // Add to element list
+        this.elementList.push(combinationName);
+        // Create a new button for this combination
+        const newButtonIndex = this.elementList.length - 1;
+        this.createElementButton(combinationName, newButtonIndex);
+        // Reposition all buttons to accommodate the new one
+        this.repositionButtons();
+        print(`✅ Added "${combinationName}" to element list (total: ${this.elementList.length})`);
+        print(`📋 Current element list: ${JSON.stringify(this.elementList)}`);
+    }
+    /**
+     * Removes a combination from the element list and its button
+     */
+    removeCombination(combinationName) {
+        const index = this.elementList.indexOf(combinationName);
+        if (index > -1) {
+            this.elementList.splice(index, 1);
+            // Find and destroy the corresponding button
+            const buttonToRemove = this.generatedButtons.find(btn => btn.name === `ElementButton_${combinationName}`);
+            if (buttonToRemove) {
+                buttonToRemove.destroy();
+                this.generatedButtons = this.generatedButtons.filter(btn => btn !== buttonToRemove);
+            }
+            // Reposition remaining buttons
+            this.repositionButtons();
+            print(`✅ Removed combination "${combinationName}" from element list`);
+        }
+        else {
+            print(`⚠️ Combination "${combinationName}" not found in element list`);
+        }
+    }
+    /**
+     * Clears all combinations (keeps only original elements)
+     */
+    clearAllCombinations() {
+        const originalElements = ["fire", "water", "earth", "wind"];
+        const combinationsToRemove = [];
+        // Find all non-original elements
+        this.elementList.forEach(element => {
+            if (!originalElements.includes(element)) {
+                combinationsToRemove.push(element);
+            }
+        });
+        // Remove each combination
+        combinationsToRemove.forEach(combination => {
+            this.removeCombination(combination);
+        });
+        print(`✅ Cleared ${combinationsToRemove.length} combinations, kept ${originalElements.length} original elements`);
+    }
+    /**
+     * Gets only the combinations (excludes original elements)
+     */
+    getCombinations() {
+        const originalElements = ["fire", "water", "earth", "wind"];
+        return this.elementList.filter(element => !originalElements.includes(element));
+    }
+    /**
+     * Gets only the original elements
+     */
+    getOriginalElements() {
+        const originalElements = ["fire", "water", "earth", "wind"];
+        return this.elementList.filter(element => originalElements.includes(element));
     }
     __initialize() {
         super.__initialize();

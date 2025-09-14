@@ -1,9 +1,8 @@
 CollapsedEntities:
   type: stringset
   value:
-    size: 719
+    size: 718
     values:
-      - ""
       - LSTween.lspkg
       - LSTween.lspkg/Examples
       - LSTween.lspkg/Examples/Assets
@@ -95,6 +94,7 @@ CollapsedEntities:
       - Render/Echopark.hdr/Specular
       - Render/Render Target.renderTarget
       - Scene.scene
+      - Scripts
       - Scripts/AIAssistantUIBridge.ts
       - Scripts/APIKeyHint.ts
       - Scripts/ASRQueryController.ts
@@ -103,7 +103,6 @@ CollapsedEntities:
       - Scripts/InteractableImageGenerator.ts
       - Scripts/InteractableSnap3DGenerator.ts
       - Scripts/InternetAvailabilityPopUp.ts
-      - Scripts/MergeManager.ts
       - Scripts/OpenAIAssistant.ts
       - Scripts/Snap3DInteractable.ts
       - Scripts/Snap3DInteractableFactory.ts
