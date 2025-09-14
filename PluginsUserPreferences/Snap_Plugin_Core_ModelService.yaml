@@ -1,5 +1,5 @@
 ExternalSources:
-  type: "std::map<Es::Uuid, Es::Path>"
+  type: "std::map<class Es::Uuid,class Es::Path,struct std::less<class Es::Uuid>,class std::allocator<struct std::pair<class Es::Uuid const ,class Es::Path> > >"
   value:
-    []
+    - d4abdc31-37be-493c-9311-72f2e51a99de: "C:/Program Files/Snap Inc/Lens Studio/JsPlugins/PresetsRegistry/Assets/TypeScript/Resources/Untitled TypeScript.ts"
   options: 4

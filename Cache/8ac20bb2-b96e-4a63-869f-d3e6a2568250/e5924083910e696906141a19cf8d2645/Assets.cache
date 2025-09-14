@@ -1481,7 +1481,7 @@
             mValues:
               []
         ShaderType: Mesh3d
-      ShaderPath: 8ac20bb2-b96e-4a63-869f-d3e6a2568250/e5924083910e696906141a19cf8d2645/Data/6533ae0/icon_mat.glsl
+      ShaderPath: 8ac20bb2-b96e-4a63-869f-d3e6a2568250/e5924083910e696906141a19cf8d2645/Data/0a4e116/icon_mat.glsl
       Defines:
         []
       Properties:

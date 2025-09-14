@@ -12,6 +12,7 @@ function component(target) { target.getTypeName = function () { return __selfTyp
 const WorldCameraFinderProvider_1 = require("SpectaclesInteractionKit.lspkg/Providers/CameraProvider/WorldCameraFinderProvider");
 const PinchButton_1 = require("SpectaclesInteractionKit.lspkg/Components/UI/PinchButton/PinchButton");
 const FunctionTimingUtils_1 = require("SpectaclesInteractionKit.lspkg/Utils/FunctionTimingUtils");
+const MergeManager_1 = require("./MergeManager");
 let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends BaseScriptComponent {
     onAwake() {
         print("🚀 InteractableSnap3DGenerator onAwake called");
@@ -474,7 +475,7 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
     /**
      * Event handler called when a Snap3D object is deleted due to collision
      */
-    onObjectDeleted(data) {
+    async onObjectDeleted(data) {
         print(`🎯 Object deleted event received:`);
         print(`   Object: ${data.objectName}`);
         print(`   Element: ${data.elementType}`);
@@ -491,7 +492,7 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
                 // - Update score or statistics
                 // - Trigger animations
                 // Example: Generate a combination name
-                const combinationName = this.generateCombinationName(data.elementType, data.collisionPartner);
+                const combinationName = await this.generateCombinationName(data.elementType, data.collisionPartner);
                 print(`✨ Suggested combination: ${combinationName}`);
                 // Example: Update button states or UI
                 this.updateUIAfterCollision(combinationName);
@@ -533,26 +534,16 @@ let InteractableSnap3DGenerator = class InteractableSnap3DGenerator extends Base
     /**
      * Generates a creative combination name (you can replace this with LLM call)
      */
-    generateCombinationName(element1, element2) {
-        print('generating combination');
-        const combinations = {
-            "fire+water": ["steam dragon", "boiling mist", "hot spring spirit"],
-            "water+fire": ["steam dragon", "boiling mist", "hot spring spirit"],
-            "fire+earth": ["lava golem", "volcano guardian", "molten rock"],
-            "fire+wind": ["fire tornado", "blazing storm", "flame cyclone"],
-            "water+earth": ["mud elemental", "swamp creature", "clay guardian"],
-            "water+wind": ["rain spirit", "storm cloud", "misty wind"],
-            "earth+wind": ["dust storm", "sand elemental", "rock tornado"],
-        };
-        const key1 = `${element1.toLowerCase()}+${element2.toLowerCase()}`;
-        const key2 = `${element2.toLowerCase()}+${element1.toLowerCase()}`;
-        if (combinations[key1]) {
-            return combinations[key1][Math.floor(Math.random() * combinations[key1].length)];
+    async generateCombinationName(element1, element2) {
+        try {
+            const merged = await (0, MergeManager_1.mergeTitles)(element1, element2);
+            print(`Merged title: ${merged}`);
+            return merged;
         }
-        else if (combinations[key2]) {
-            return combinations[key2][Math.floor(Math.random() * combinations[key2].length)];
+        catch (err) {
+            print("Error merging titles: " + err);
+            return "Error";
         }
-        return `${element1} ${element2} fusion`;
     }
     /**
      * Updates UI after collision (customize this for your needs)
