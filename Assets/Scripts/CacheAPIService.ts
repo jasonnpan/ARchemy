@@ -17,7 +17,7 @@ export interface APIResponse<T> {
   error?: string;
 }
 
-export const cacheAPIUrl = "https://htn25.max-jiang.com";
+export const cacheAPIUrl = "https://htn25-v2.max-jiang.com";
 
 export class CacheAPIService {
   private static instance: CacheAPIService;
